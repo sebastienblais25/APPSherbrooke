@@ -4,6 +4,7 @@ from osgeo import ogr
 from osgeo import gdal
 from osgeo import gdalconst
 
+#Rasterize
 def Feature_to_Raster(input, type_input, output_tiff,
                       cellsize, layer="", field_name=False, NoData_value=-9999):
     """
@@ -49,5 +50,10 @@ def Feature_to_Raster(input, type_input, output_tiff,
 
     # Return
     return output_tiff 
+#Reclasify
+
+#Raster Calculator
+
+#Field Calculator
 
 Feature_to_Raster(r"D:\APP_data\zone_analyse_parcindustriel.shp",'ESRI Shapefile',r'D:\dumping_codes\Tiff\test.tiff',1)
