@@ -4,16 +4,19 @@ from osgeo import ogr
 from osgeo import gdal
 from osgeo import gdalconst
 
-def Feature_to_Raster(input_shp, output_tiff,
-                      cellsize, field_name=False, NoData_value=-9999):
+def Feature_to_Raster(input, type_input, output_tiff,
+                      cellsize, layer="", field_name=False, NoData_value=-9999):
     """
     Converts a shapefile into a raster
     """
 
     # Input
-    inp_driver = ogr.GetDriverByName('ESRI Shapefile')
-    inp_source = inp_driver.Open(input_shp, 0)
-    inp_lyr = inp_source.GetLayer()
+    inp_driver = ogr.GetDriverByName(type_input)
+    inp_source = inp_driver.Open(input, 0)
+    if layer == "":
+        inp_lyr = inp_source.GetLayer()
+    else:
+        inp_lyr == inp_source.GetLayer(layer)
     inp_srs = inp_lyr.GetSpatialRef()
 
     # Extent
@@ -47,4 +50,4 @@ def Feature_to_Raster(input_shp, output_tiff,
     # Return
     return output_tiff 
 
-Feature_to_Raster(r"D:\APP_data\zone_analyse_parcindustriel.shp",r'D:\dumping_codes\Tiff\test.tiff',1)
+Feature_to_Raster(r"D:\APP_data\zone_analyse_parcindustriel.shp",'ESRI Shapefile',r'D:\dumping_codes\Tiff\test.tiff',1)
