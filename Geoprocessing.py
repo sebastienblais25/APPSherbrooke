@@ -5,12 +5,10 @@ from osgeo import gdal
 from osgeo import gdalconst
 
 #Rasterize
-def Feature_to_Raster(input, type_input, output_tiff,
-                      cellsize, layer="", field_name=False, NoData_value=-9999):
+def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_name=False, NoData_value=-9999):
     """
     Converts a shapefile into a raster
     """
-
     # Input
     inp_driver = ogr.GetDriverByName(type_input)
     inp_source = inp_driver.Open(input, 0)
@@ -50,7 +48,37 @@ def Feature_to_Raster(input, type_input, output_tiff,
 
     # Return
     return output_tiff 
-#Reclasify
+#Reclasify À corriger
+def Reclassify_Raster(input,output):
+    driver = gdal.GetDriverByName('GTiff')
+    file = gdal.Open(input)
+    band = file.GetRasterBand(1)
+    lista = band.ReadAsArray()
+
+    # reclassification
+    for j in  range(file.RasterXSize):
+        for i in  range(file.RasterYSize):
+            if lista[i,j] < 200:
+                lista[i,j] = 1
+            elif 200 < lista[i,j] < 400:
+                lista[i,j] = 2
+            elif 400 < lista[i,j] < 600:
+                lista[i,j] = 3
+            elif 600 < lista[i,j] < 800:
+                lista[i,j] = 4
+            else:
+                lista[i,j] = 5
+
+    # create new file
+    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
+    file2.GetRasterBand(1).WriteArray(lista)
+
+    # spatial ref system
+    proj = file.GetProjection()
+    georef = file.GetGeoTransform()
+    file2.SetProjection(proj)
+    file2.SetGeoTransform(georef)
+    file2.FlushCache()
 
 #Raster Calculator
 
