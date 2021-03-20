@@ -23,13 +23,15 @@ class factor:
         self.raster = False
     
     #Set the raster path to the check if the layer is already a raster or call to create a raster
-    def setRasterLayer():
-        extension = self.Path.split('.')[1]
+    def setRasterLayer(self):
+        extension = self.path.split('.')[1]
         if extension == 'shp':
-            geo.Feature_to_Raster(self.vecPath,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),50)
+            print('shp')
+            geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10)
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
-            geo.Feature_to_Raster(self.vecPath,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),50,self.layerName)
+            print('gdb')
+            geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10,self.layerName)
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
             shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')

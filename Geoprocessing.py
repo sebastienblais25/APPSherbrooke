@@ -1,13 +1,28 @@
 import numpy as np
 import os
 import random
+import shutil
 from osgeo import ogr
 from osgeo import gdal, gdal_array
 from osgeo import gdalconst
 
+#Setup all the directory for the processing
+def setUpDirectory(path):
+    #Check if the folder of source layer
+    if not os.path.exists(os.path.join(path,'source')):
+        print('add the source folder for the multicriteria analysis')
+    # Create folder for the raster
+    if os.path.exists(os.path.join(path,'raster')):
+        shutil.rmtree(os.path.join(path,'raster'))
+    os.mkdir(os.path.join(path,'raster'))
+
+    # Create folder for the finalProduct
+    if os.path.exists(os.path.join(path,'finalProduct')):
+        shutil.rmtree(os.path.join(path,'finalProduct'))
+    os.mkdir(os.path.join(path,'finalProduct'))
 
 #Rasterize
-def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_name=False, NoData_value=-9999):
+def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_name=False, NoData_value=0):
     """
     Converts a shapefile into a raster
     """
@@ -17,11 +32,13 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     if layer == "":
         inp_lyr = inp_source.GetLayer()
     else:
-        inp_lyr == inp_source.GetLayer(layer)
+        print(layer)
+        inp_lyr = inp_source.GetLayer(layer)
     inp_srs = inp_lyr.GetSpatialRef()
 
     # Extent
-    x_min, x_max, y_min, y_max = inp_lyr.GetExtent()
+    # print(inp_lyr.GetExtent()) 
+    x_min, x_max, y_min, y_max = (178635.17480000015, 202786.83017500024, 5018970.8166000005, 5043653.475)
     x_ncells = int((x_max - x_min) / cellsize)
     y_ncells = int((y_max - y_min) / cellsize)
 
@@ -84,30 +101,38 @@ def Reclassify_Raster(input,output):
     file2.FlushCache() 
 
 #Raster Calculator for factor
-def raster_Calculator(list_input, output, operator):
+def raster_Calculator(list_input, output):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
     for i in list_input:
-        file = gdal.Open(i)
+        print(i.rasPath)
+        file = gdal.Open(i.rasPath)
         band = file.GetRasterBand(1)
         list_array.append(band.ReadAsArray())
 
     for idx, i in enumerate(list_array):
         if idx == 0 :
-            calc = (i * 0.5)
+            calc = i
         else:
-            calc += (i * 0.5)
+            calc += i
 
     # create new file
     file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
     file2.GetRasterBand(1).WriteArray(calc)
+    file2.GetRasterBand(1).SetNoDataValue(0)
 
+    # Set Data
+    band = file2.GetRasterBand(1)
+    arr = band.ReadAsArray()
+    arr = np.where(arr > 0, 1, arr)
+    band.WriteArray(arr)       
+    band.SetNoDataValue(-6999)
     # spatial ref system
     proj = file.GetProjection()
     georef = file.GetGeoTransform()
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
-    file2.FlushCache()
+    file2.FlushCache()   
 
 #Raster Calculator for Cirteria
 def raster_Calculator_Criteria(list_input, output, operator):
@@ -127,6 +152,7 @@ def raster_Calculator_Criteria(list_input, output, operator):
     # create new file
     file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
     file2.GetRasterBand(1).WriteArray(calc)
+    file2.GetRasterBand(1).SetNoDataValue(0)
 
     # spatial ref system
     proj = file.GetProjection()
@@ -136,19 +162,6 @@ def raster_Calculator_Criteria(list_input, output, operator):
     file2.FlushCache()
 #Proximity
 
-#Change no data to 0
-def raster_noData(filenames):
-    for fn in filenames:
-        ds = gdal.Open(fn, 1)                      # pass 1 to modify the raster
-        n = ds.RasterCount                         # get number of bands
-        for i in range(1, n+1):
-            band = ds.GetRasterBand(i)
-            arr = band.ReadAsArray()               # read band as numpy array
-            arr = np.where(arr == -6999, 0, arr)  # change 0 to -10000
-            band.WriteArray(arr)                   # write the new array
-            band.SetNoDataValue(0)            # set the NoData value
-            band.FlushCache()                      # save changes
-        del ds
 
 #Field Calculator
 
