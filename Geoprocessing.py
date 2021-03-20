@@ -83,7 +83,7 @@ def Reclassify_Raster(input,output):
     file2.SetGeoTransform(georef)
     file2.FlushCache() 
 
-#Raster Calculator
+#Raster Calculator for factor
 def raster_Calculator(list_input, output, operator):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
@@ -108,6 +108,47 @@ def raster_Calculator(list_input, output, operator):
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
     file2.FlushCache()
+
+#Raster Calculator for Cirteria
+def raster_Calculator_Criteria(list_input, output, operator):
+    driver = gdal.GetDriverByName('GTiff')
+    list_array = []
+    for i in list_input:
+        file = gdal.Open(i)
+        band = file.GetRasterBand(1)
+        list_array.append(band.ReadAsArray())
+
+    for idx, i in enumerate(list_array):
+        if idx == 0 :
+            calc = (i * 0.5)
+        else:
+            calc = (i * 0.5)
+
+    # create new file
+    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
+    file2.GetRasterBand(1).WriteArray(calc)
+
+    # spatial ref system
+    proj = file.GetProjection()
+    georef = file.GetGeoTransform()
+    file2.SetProjection(proj)
+    file2.SetGeoTransform(georef)
+    file2.FlushCache()
+#Proximity
+
+#Change no data to 0
+def raster_noData(filenames):
+    for fn in filenames:
+        ds = gdal.Open(fn, 1)                      # pass 1 to modify the raster
+        n = ds.RasterCount                         # get number of bands
+        for i in range(1, n+1):
+            band = ds.GetRasterBand(i)
+            arr = band.ReadAsArray()               # read band as numpy array
+            arr = np.where(arr == -6999, 0, arr)  # change 0 to -10000
+            band.WriteArray(arr)                   # write the new array
+            band.SetNoDataValue(0)            # set the NoData value
+            band.FlushCache()                      # save changes
+        del ds
 
 #Field Calculator
 
