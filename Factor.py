@@ -5,6 +5,7 @@ import Geoprocessing as geo
 import os
 import shutil
 
+# Classe pour les couches de données et faire certains prétraitement dessus pour l'Analyse multi-critère
 class factor:
     def __init__(self, name,weight,path,layerName,cellsize):
         self.name = name
@@ -22,19 +23,19 @@ class factor:
         self.rasPath = ""
         self.raster = False
     
-    #Set the raster path to the check if the layer is already a raster or call to create a raster
+    # Rasterize les critère dans une grandeur de cellule voulu
     def setRasterLayer(self):
         extension = self.path.split('.')[1]
         if extension == 'shp':
             print('shp')
-            geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10)
+            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10)
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
             print('gdb')
-            geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10,self.layerName)
+            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10,self.layerName)
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
             shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
     
-    #Reclassify the raster layer with 
+    # Reclassify the raster layer with 

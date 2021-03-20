@@ -6,49 +6,51 @@ from osgeo import ogr
 from osgeo import gdal, gdal_array
 from osgeo import gdalconst
 
-#Setup all the directory for the processing
+#Setup les dossiers pour que le programmes fonctionne comme il le faut
 def setUpDirectory(path):
-    #Check if the folder of source layer
+    # Check if the folder of source layer
     if not os.path.exists(os.path.join(path,'source')):
         print('add the source folder for the multicriteria analysis')
     # Create folder for the raster
     if os.path.exists(os.path.join(path,'raster')):
         shutil.rmtree(os.path.join(path,'raster'))
     os.mkdir(os.path.join(path,'raster'))
-
     # Create folder for the finalProduct
     if os.path.exists(os.path.join(path,'finalProduct')):
         shutil.rmtree(os.path.join(path,'finalProduct'))
     os.mkdir(os.path.join(path,'finalProduct'))
 
-#Rasterize
+#Fonction pour effectuer un rasterize sur les fichiers vectorielle
 def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_name=False, NoData_value=0):
     """
     Converts a shapefile into a raster
     """
-    # Input
+    # Chercher le driver pour la lecture
     inp_driver = ogr.GetDriverByName(type_input)
+    # Lecture du fichier
     inp_source = inp_driver.Open(input, 0)
+    # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
     if layer == "":
         inp_lyr = inp_source.GetLayer()
     else:
         print(layer)
         inp_lyr = inp_source.GetLayer(layer)
+    # On va chercher les références spatiales de la couches
     inp_srs = inp_lyr.GetSpatialRef()
 
-    # Extent
+    # On établi l'extent pour chaque raster dans le processus
     # print(inp_lyr.GetExtent()) 
     x_min, x_max, y_min, y_max = (178635.17480000015, 202786.83017500024, 5018970.8166000005, 5043653.475)
     x_ncells = int((x_max - x_min) / cellsize)
     y_ncells = int((y_max - y_min) / cellsize)
 
-    # Output
+    # Effectue le création de fichier pour le tiff
     out_driver = gdal.GetDriverByName('GTiff')
     if os.path.exists(output_tiff):
         out_driver.Delete(output_tiff)
     out_source = out_driver.Create(output_tiff, x_ncells, y_ncells,
                                    1, gdal.GDT_Int16)
-
+    # Tranfromation du fichier pour que ça fit un raster de la taille voulu
     out_source.SetGeoTransform((x_min, cellsize, 0, y_max, 0, -cellsize))
     out_source.SetProjection(inp_srs.ExportToWkt())
     out_lyr = out_source.GetRasterBand(1)
@@ -65,7 +67,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     inp_source = None
     out_source = None
 
-    # Return
+    # Returne le nom du fichier 
     return output_tiff 
 
 #Reclasify À corriger
@@ -89,27 +91,29 @@ def Reclassify_Raster(input,output):
             # else:
             #     lista[i,j] = 5
 
-    # create new file
+    # Création d'un nouveau fichier pour la nouvelle reclassification
     file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
+    # Ajout de la matrice dans le fichier
     file2.GetRasterBand(1).WriteArray(lista)
 
-    # spatial ref system
+    # remet les paramèetre du fichier original
     proj = file.GetProjection()
     georef = file.GetGeoTransform()
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
     file2.FlushCache() 
 
-#Raster Calculator for factor
+# Raster Calculator pour les critère
 def raster_Calculator(list_input, output):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
+    # Ouvre tous les fichiers a lire
     for i in list_input:
         print(i.rasPath)
         file = gdal.Open(i.rasPath)
         band = file.GetRasterBand(1)
         list_array.append(band.ReadAsArray())
-
+    # Calcul tous les fichiers un apres les autres avec numpy
     for idx, i in enumerate(list_array):
         if idx == 0 :
             calc = i
@@ -134,7 +138,7 @@ def raster_Calculator(list_input, output):
     file2.SetGeoTransform(georef)
     file2.FlushCache()   
 
-#Raster Calculator for Cirteria
+# Raster Calculator pour les facteur a travailler
 def raster_Calculator_Criteria(list_input, output, operator):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
@@ -160,10 +164,10 @@ def raster_Calculator_Criteria(list_input, output, operator):
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
     file2.FlushCache()
-#Proximity
+# Proximity
 
 
-#Field Calculator
+# Field Calculator
 
 #Exemple hos to run the function
 Feature_to_Raster(r"D:\APP_data\zone_analyse_parcindustriel.shp",'ESRI Shapefile',r'D:\dumping_codes\Tiff\test.tiff',1)
