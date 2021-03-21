@@ -6,7 +6,7 @@ import os
 import shutil
 
 # Classe pour les couches de données et faire certains prétraitement dessus pour l'Analyse multi-critère
-class factor:
+class layer:
     def __init__(self, name,weight,path,layerName,cellsize):
         self.name = name
         self.weight = weight
@@ -29,11 +29,11 @@ class factor:
         if extension == 'shp':
             print('shp')
             self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10)
-            self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
+            # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
             print('gdb')
             self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10,self.layerName)
-            self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
+            # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
             shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")

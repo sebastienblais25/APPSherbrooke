@@ -1,7 +1,7 @@
 import numpy
 import os
 import Geoprocessing as geo
-from Factor import factor
+from Layer import layer
 from read_csv import readCSV
 import geopandas
 import pathlib
@@ -29,12 +29,3 @@ geo.raster_Calculator(layerList, r'D:\dumping_codes\APPSherbrooke\finalProduct\m
 
 # Raster Calculator pour un axe
 
-
-# geo.Feature_to_Raster(layer.vecPath,'ESRI Shapefile',r'D:\dumping_codes\APPSherbrooke\raster\test.tiff',50)
-
-# geo.Reclassify_Raster(r'D:\dumping_codes\APPSherbrooke\raster\test.tiff', r'D:\dumping_codes\APPSherbrooke\raster\testReclassify.tiff')
-# list_input = []
-# list_input.append(r'D:\dumping_codes\APPSherbrooke\raster\test.tiff')
-# list_input.append(r'D:\dumping_codes\APPSherbrooke\raster\testReclassify.tiff')
-
-# geo.raster_Calculator(list_input,r'D:\dumping_codes\APPSherbrooke\raster\testCalc.tiff','+')

@@ -7,7 +7,7 @@ from osgeo import ogr
 from osgeo import gdal, gdal_array
 from osgeo import gdalconst
 
-#Setup les dossiers pour que le programmes fonctionne comme il le faut
+# Setup les dossiers pour que le programmes fonctionne comme il le faut
 def setUpDirectory(path):
     # Check if the folder of source layer
     if not os.path.exists(os.path.join(path,'source')):
@@ -21,7 +21,56 @@ def setUpDirectory(path):
         shutil.rmtree(os.path.join(path,'finalProduct'))
     os.mkdir(os.path.join(path,'finalProduct'))
 
-#Fonction pour effectuer un rasterize sur les fichiers vectorielle
+# Optimisation Idée
+# Ouvrir Couche de donner
+
+# Créer Couche de données Raster
+
+# Donne la référence spatiale
+
+# Reprojection des couches à utiliser
+def reprojection_Layer():
+    #tif with projections I want
+    tif = gdal.Open("/home/zeito/pyqgis_data/utah_dem4326.tif")
+
+    #shapefile with the from projection
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    dataSource =   driver.Open("/home/zeito/pyqgis_data/polygon8.shp", 1)
+    layer = dataSource.GetLayer()
+
+    #set spatial reference and transformation
+    sourceprj = layer.GetSpatialRef()
+    targetprj = osr.SpatialReference(wkt = tif.GetProjection())
+    if sourceprj != targetprj :
+        transform = osr.CoordinateTransformation(sourceprj, targetprj)
+        
+
+        to_fill = ogr.GetDriverByName("Esri Shapefile")
+        ds = to_fill.CreateDataSource("/home/zeito/pyqgis_data/projected.shp")
+        outlayer = ds.CreateLayer('', targetprj, ogr.wkbPolygon)
+        outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
+
+        #apply transformation
+        i = 0
+
+        for feature in layer:
+            transformed = feature.GetGeometryRef()
+            transformed.Transform(transform)
+
+            geom = ogr.CreateGeometryFromWkb(transformed.ExportToWkb())
+            defn = outlayer.GetLayerDefn()
+            feat = ogr.Feature(defn)
+            feat.SetField('id', i)
+            feat.SetGeometry(geom)
+            outlayer.CreateFeature(feat)
+            i += 1
+            feat = None
+        # changer parametre path pour le nouveau chemin
+
+    ds = None
+    return output
+
+# Fonction pour effectuer un rasterize sur les fichiers vectorielle
 def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_name=False, NoData_value=0):
     """
     Converts a shapefile into a raster
@@ -41,7 +90,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
 
     # On établi l'extent pour chaque raster dans le processus
     # print(inp_lyr.GetExtent()) 
-    x_min, x_max, y_min, y_max = (178635.17480000015, 202786.83017500024, 5018970.8166000005, 5043653.475)
+    x_min, x_max, y_min, y_max = (178635.17480000015, 202847.59949999955, 5018929.5001, 5043653.4749)
     x_ncells = int((x_max - x_min) / cellsize)
     y_ncells = int((y_max - y_min) / cellsize)
 
@@ -55,7 +104,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     out_source.SetGeoTransform((x_min, cellsize, 0, y_max, 0, -cellsize))
     out_source.SetProjection(inp_srs.ExportToWkt())
     out_lyr = out_source.GetRasterBand(1)
-    out_lyr.SetNoDataValue(NoData_value)
+    #out_lyr.SetNoDataValue(NoData_value)
 
     # Rasterize
     if field_name:
@@ -71,8 +120,8 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     # Returne le nom du fichier 
     return output_tiff 
 
-#Reclasify À corriger
-def Reclassify_Raster(input,output):
+# Reclassify À corriger
+def Reclassify_Raster(input,output,list_reclassify):
     driver = gdal.GetDriverByName('GTiff')
     file = gdal.Open(input)
     band = file.GetRasterBand(1)
@@ -140,7 +189,7 @@ def raster_Calculator(list_input, output):
     file2.FlushCache()   
 
 # Raster Calculator pour les facteur a travailler
-def raster_Calculator_Criteria(list_input, output, operator):
+def raster_Calculator_factor(list_input, output, operator):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
     for i in list_input:
@@ -166,30 +215,7 @@ def raster_Calculator_Criteria(list_input, output, operator):
     file2.SetGeoTransform(georef)
     file2.FlushCache()
 
-# Proximity
-def Feature_to_Raster_Proximity():
-    src_ds = gdal.Open(r"D:\dumping_codes\APPSherbrooke\raster\UE.tiff")
-    srcband=src_ds.GetRasterBand(1)
-    dst_filename='output.tiff'
-    
-    drv = gdal.GetDriverByName('GTiff')
-    dst_ds = drv.Create( dst_filename,
-                         src_ds.RasterXSize, src_ds.RasterYSize, 10,
-                         gdal.GetDataTypeByName('Float32'))
-    
-    dst_ds.SetGeoTransform( src_ds.GetGeoTransform() )
-    dst_ds.SetProjection( src_ds.GetProjectionRef() )
-    
-    dstband = dst_ds.GetRasterBand(1)
-        
-    # In this example I'm using target pixel values of 100 and 300. I'm also using Distance units as GEO but you can change that to PIXELS.
-    gdal.ComputeProximity(srcband,dstband,["VALUES='100,300'","DISTUNITS=GEO"])
-    srcband = None
-    dstband = None
-    src_ds = None
-    dst_ds = None 
-
-
+# Calcule la proximité du raster à partir des rasters créer du feature_to_raster
 def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData_value=0):
     """
     Converts a shapefile into a raster
@@ -211,11 +237,11 @@ def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData
     file2.SetGeoTransform(georef)
     band2 = file2.GetRasterBand(1)
 
-    # Rasterize
-    gdal.ComputeProximity(band,band2,["VALUES='100,300'","DISTUNITS=GEO"])
+    # compute the proximity
+    gdal.ComputeProximity(band,band2,["VALUES=1","DISTUNITS=GEO"])
     file2.FlushCache()
 
 # Field Calculator
 
-#Exemple hos to run the function
-Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\UE.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxUE.tiff",1)
+# Exemple hos to run the function
+Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)

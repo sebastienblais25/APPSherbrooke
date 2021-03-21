@@ -1,6 +1,6 @@
 import csv
 import os
-from Factor import factor
+from Layer import layer
 # Classe pour lire les csv pour les infos de l'analyse multicritere
 class readCSV:
     def __init__(self, path):
@@ -17,7 +17,7 @@ class readCSV:
                     # Affichage des colonnes
                     print (', '.join(i))
                     # Création de la classe
-                    addLayer = factor(i[3],i[2],i[1],i[4],10)
+                    addLayer = layer(i[3],i[2],i[1],i[4],10)
                     # Rasterize
                     addLayer.setRasterLayer()
                     # Ajout à la liste

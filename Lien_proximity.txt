@@ -1,0 +1,8 @@
+https://gis.stackexchange.com/questions/300286/geodesic-distance-from-raster-in-python
+https://svn.osgeo.org/gdal/trunk/gdal/swig/python/scripts/gdal_proximity.py
+https://gdal.org/programs/gdal_proximity.html
+https://stackoverflow.com/questions/60713356/str-object-is-not-callable-for-gdal-proximity
+https://stackoverflow.com/questions/41635850/how-to-install-gdal-proximity
+https://github.com/OSGeo/gdal/blob/master/gdal/alg/gdalproximity.cpp
+https://gist.github.com/rossbernet/ddfcdae31a15616c01e1a3a5a848abd2
+https://gis.stackexchange.com/questions/373673/using-gdal-proximity-inside-conda-environment
