@@ -2,6 +2,7 @@ import numpy as np
 import os
 import random
 import shutil
+import subprocess
 from osgeo import ogr
 from osgeo import gdal, gdal_array
 from osgeo import gdalconst
@@ -164,10 +165,57 @@ def raster_Calculator_Criteria(list_input, output, operator):
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
     file2.FlushCache()
-# Proximity
 
+# Proximity
+def Feature_to_Raster_Proximity():
+    src_ds = gdal.Open(r"D:\dumping_codes\APPSherbrooke\raster\UE.tiff")
+    srcband=src_ds.GetRasterBand(1)
+    dst_filename='output.tiff'
+    
+    drv = gdal.GetDriverByName('GTiff')
+    dst_ds = drv.Create( dst_filename,
+                         src_ds.RasterXSize, src_ds.RasterYSize, 10,
+                         gdal.GetDataTypeByName('Float32'))
+    
+    dst_ds.SetGeoTransform( src_ds.GetGeoTransform() )
+    dst_ds.SetProjection( src_ds.GetProjectionRef() )
+    
+    dstband = dst_ds.GetRasterBand(1)
+        
+    # In this example I'm using target pixel values of 100 and 300. I'm also using Distance units as GEO but you can change that to PIXELS.
+    gdal.ComputeProximity(srcband,dstband,["VALUES='100,300'","DISTUNITS=GEO"])
+    srcband = None
+    dstband = None
+    src_ds = None
+    dst_ds = None 
+
+
+def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData_value=0):
+    """
+    Converts a shapefile into a raster
+    """
+    # Chercher le driver pour la lecture
+    driver = gdal.GetDriverByName('GTiff')
+    # Lecture du fichier
+    file = gdal.Open(input)
+    band = file.GetRasterBand(1)
+    
+
+    # Création d'un nouveau fichier pour la nouvelle reclassification
+    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
+
+    # remet les paramèetre du fichier original
+    proj = file.GetProjection()
+    georef = file.GetGeoTransform()
+    file2.SetProjection(proj)
+    file2.SetGeoTransform(georef)
+    band2 = file2.GetRasterBand(1)
+
+    # Rasterize
+    gdal.ComputeProximity(band,band2,["VALUES='100,300'","DISTUNITS=GEO"])
+    file2.FlushCache()
 
 # Field Calculator
 
 #Exemple hos to run the function
-Feature_to_Raster(r"D:\APP_data\zone_analyse_parcindustriel.shp",'ESRI Shapefile',r'D:\dumping_codes\Tiff\test.tiff',1)
+Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\UE.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxUE.tiff",1)
