@@ -22,20 +22,34 @@ class layer:
         self.layerName = layerName
         self.rasPath = ""
         self.raster = False
-    
+
+    # Reporjection des couches si besoin pour le projet
+    def reprojectLayer(self):
+        extension = self.path.split('.')[1]
+        if extension == 'shp':
+            print('shp')
+            self.path = geo.reprojection_Layer(self.path,'ESRI Shapefile')
+        elif extension == 'gdb':
+            print('gdb')
+            self.path = geo.reprojection_Layer(self.path,'OpenFileGDB',self.layerName)
+
+
     # Rasterize les critère dans une grandeur de cellule voulu
     def setRasterLayer(self):
         extension = self.path.split('.')[1]
         if extension == 'shp':
             print('shp')
-            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10)
+            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),5)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
             print('gdb')
-            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10,self.layerName)
+            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),5,self.layerName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
             shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
     
     # Reclassify the raster layer with 
+
+
+    # Prétraitement filtre

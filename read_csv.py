@@ -18,6 +18,8 @@ class readCSV:
                     print (', '.join(i))
                     # Création de la classe
                     addLayer = layer(i[3],i[2],i[1],i[4],10)
+                    # Reprojection
+                    addLayer.reprojectLayer()
                     # Rasterize
                     addLayer.setRasterLayer()
                     # Ajout à la liste

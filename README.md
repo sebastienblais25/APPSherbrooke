@@ -15,3 +15,16 @@ gdal 2.3.3
 osgeo
 geospanda
 numpy 1.19.2
+
+# RoadMap 
+- [x] Recherche
+- [x] contruction des premier geoprocessing
+- [x] Rasterize, Reclassify et raster_calculator
+- [] documentation pour environnement
+- [x] Fonctione du proximity et de la reprojection
+- [x] Réalisation des premier masques de criteres
+- [] Réalisation des premièere matrice de facteurs
+- [] Réalisation du core au complet
+- [] Réalisation des prétraitement (dissolve, add filed)
+- [] Optimisation
+

@@ -4,8 +4,12 @@ import random
 import shutil
 import subprocess
 from osgeo import ogr
+from osgeo import osr
 from osgeo import gdal, gdal_array
 from osgeo import gdalconst
+
+projection = osr.SpatialReference(wkt = r'PROJCS["NAD83 / MTM zone 7",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-70.5],PARAMETER["scale_factor",0.9999],PARAMETER["false_easting",304800],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["E(X)",EAST],AXIS["N(Y)",NORTH],AUTHORITY["EPSG","32187"]]')
+
 
 # Setup les dossiers pour que le programmes fonctionne comme il le faut
 def setUpDirectory(path):
@@ -20,40 +24,53 @@ def setUpDirectory(path):
     if os.path.exists(os.path.join(path,'finalProduct')):
         shutil.rmtree(os.path.join(path,'finalProduct'))
     os.mkdir(os.path.join(path,'finalProduct'))
+    # Create folder for the finalProduct
+    if os.path.exists(os.path.join(path,'reproject')):
+        shutil.rmtree(os.path.join(path,'reproject'))
+    os.mkdir(os.path.join(path,'reproject'))
 
 # Optimisation Idée
 # Ouvrir Couche de donner
 
 # Créer Couche de données Raster
 
-# Donne la référence spatiale
+# Donne la référence spatiale de référence
+
+# Donne l'extent de référence
 
 # Reprojection des couches à utiliser
-def reprojection_Layer():
-    #tif with projections I want
-    tif = gdal.Open("/home/zeito/pyqgis_data/utah_dem4326.tif")
+def reprojection_Layer(input, typefile, layer=""):
 
     #shapefile with the from projection
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    dataSource =   driver.Open("/home/zeito/pyqgis_data/polygon8.shp", 1)
-    layer = dataSource.GetLayer()
-
+    driver = ogr.GetDriverByName(typefile)
+    dataSource =   driver.Open(input, 0)
+    if layer == "":
+        inp_lyr = dataSource.GetLayer()
+    else:
+        print(layer)
+        inp_lyr = dataSource.GetLayer(layer)
+    output = input
     #set spatial reference and transformation
-    sourceprj = layer.GetSpatialRef()
-    targetprj = osr.SpatialReference(wkt = tif.GetProjection())
-    if sourceprj != targetprj :
-        transform = osr.CoordinateTransformation(sourceprj, targetprj)
+    sourceprj = inp_lyr.GetSpatialRef()
+    print(sourceprj.GetAttrValue("UNIT", 1))
+    print(projection.GetAttrValue("UNIT", 1))
+    if sourceprj != projection:
+        if layer == "":
+            output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", input.split("\\")[-1])
+        else: 
+            output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", layer + '.shp')
+        print(output)
+        transform = osr.CoordinateTransformation(sourceprj, projection)
         
-
         to_fill = ogr.GetDriverByName("Esri Shapefile")
-        ds = to_fill.CreateDataSource("/home/zeito/pyqgis_data/projected.shp")
-        outlayer = ds.CreateLayer('', targetprj, ogr.wkbPolygon)
+        ds = to_fill.CreateDataSource(output)
+        outlayer = ds.CreateLayer('', projection, ogr.wkbPolygon)
         outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
 
         #apply transformation
         i = 0
 
-        for feature in layer:
+        for feature in inp_lyr:
             transformed = feature.GetGeometryRef()
             transformed.Transform(transform)
 
@@ -104,7 +121,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     out_source.SetGeoTransform((x_min, cellsize, 0, y_max, 0, -cellsize))
     out_source.SetProjection(inp_srs.ExportToWkt())
     out_lyr = out_source.GetRasterBand(1)
-    #out_lyr.SetNoDataValue(NoData_value)
+    out_lyr.SetNoDataValue(NoData_value)
 
     # Rasterize
     if field_name:
@@ -121,7 +138,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     return output_tiff 
 
 # Reclassify À corriger
-def Reclassify_Raster(input,output,list_reclassify):
+def Reclassify_Raster(input,output):
     driver = gdal.GetDriverByName('GTiff')
     file = gdal.Open(input)
     band = file.GetRasterBand(1)
@@ -131,8 +148,9 @@ def Reclassify_Raster(input,output,list_reclassify):
     for j in  range(file.RasterXSize):
         for i in  range(file.RasterYSize):
             if lista[i,j] == 1:
-                lista[i,j] = random.randint(1,5)
-            # elif 200 < lista[i,j] < 400:
+                lista[i,j] = 0
+            else:
+                lista[i,j] = 1
             #     lista[i,j] = 2
             # elif 400 < lista[i,j] < 600:
             #     lista[i,j] = 3
@@ -241,7 +259,18 @@ def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData
     gdal.ComputeProximity(band,band2,["VALUES=1","DISTUNITS=GEO"])
     file2.FlushCache()
 
+# Slope calculator
+# https://gdal.org/python/
+# https://stackoverflow.com/questions/47653271/calculating-aspect-slope-in-python3-x-matlab-gradientm-function
+def calculate_slope(DEM):
+    gdal.DEMProcessing(r"D:\dumping_codes\APPSherbrooke\raster\slope.tiff", DEM, 'slope')
+
+# Degrader et reprojeter un Tiff avec gdal.warp 
+# https://gdal.org/python/
+
 # Field Calculator
 
 # Exemple hos to run the function
-Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
+# Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
+# Feature_to_Raster(r'D:\APP_data\Carto_mhs_sudqc_2020.gdb','OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','geoSpa' + ".tiff"),10,'Milieux_humides_sudqc_2020')
+# reprojection_Layer(r'D:\APP_data\Carto_mhs_sudqc_2020.gdb','OpenFileGDB','Milieux_humides_sudqc_2020')

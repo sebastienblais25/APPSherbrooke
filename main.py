@@ -23,6 +23,8 @@ layerList = test.read_layer()
 # Calcul des raster pour les critêre pour avoir un masque
 geo.raster_Calculator(layerList, r'D:\dumping_codes\APPSherbrooke\finalProduct\mask.tiff')
 
+
+geo.Reclassify_Raster(r'D:\dumping_codes\APPSherbrooke\finalProduct\mask.tiff', r'D:\dumping_codes\APPSherbrooke\finalProduct\maskinverse.tiff')
 # Utilisation du rasterize avec le proximity pour les facteurs pour un axe donnée
 
 # Reclassification des facteur pour un axe

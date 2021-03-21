@@ -1,4 +1,4 @@
-Axe,path,weight,name,name_layer
-Environnnement,D:\APP_data\espèces à statut CDPNQ\espece_statut_flore\Occurences_CDPNQ_flore_shapefile_210315\flore.shp,1,flore,flore
-Environnnement,D:\APP_data\espèces à statut CDPNQ\faune\Faune.shp,1,faune,faune
-Environnement,D:\APP_data\Carto_mhs_sudqc_2020.gdb,1,mh,Milieux_humides_sudqc_2020
+Axe,path,weight,name,name_layer,colonne
+Environnnement,D:\APP_data\espèces à statut CDPNQ\espece_statut_flore\Occurences_CDPNQ_flore_shapefile_210315\flore.shp,1,flore,flore,
+Environnnement,D:\APP_data\espèces à statut CDPNQ\faune\Faune.shp,1,faune,faune,
+Environnement,D:\APP_data\Carto_mhs_sudqc_2020.gdb,1,mh,Milieux_humides_sudqc_2020,
