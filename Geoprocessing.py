@@ -2,7 +2,6 @@ import numpy as np
 import os
 import random
 import shutil
-import subprocess
 from osgeo import ogr
 from osgeo import osr
 from osgeo import gdal, gdal_array
@@ -20,6 +19,10 @@ def setUpDirectory(path):
     if os.path.exists(os.path.join(path,'raster')):
         shutil.rmtree(os.path.join(path,'raster'))
     os.mkdir(os.path.join(path,'raster'))
+    # Create folder for the raster
+    if os.path.exists(os.path.join(path,'proximity')):
+        shutil.rmtree(os.path.join(path,'proximity'))
+    os.mkdir(os.path.join(path,'proximity'))
     # Create folder for the finalProduct
     if os.path.exists(os.path.join(path,'finalProduct')):
         shutil.rmtree(os.path.join(path,'finalProduct'))
@@ -29,10 +32,39 @@ def setUpDirectory(path):
         shutil.rmtree(os.path.join(path,'reproject'))
     os.mkdir(os.path.join(path,'reproject'))
 
-# Optimisation Idée
-# Ouvrir Couche de donner
+# Clean tous les dossier pour prendre l moins d'espace possible
+def cleanUpDirectory(path):
+    # Delete Folder
+    shutil.rmtree(os.path.join(path,'raster'))
+    shutil.rmtree(os.path.join(path,'proximity'))
+    shutil.rmtree(os.path.join(path,'reproject'))   
 
-# Créer Couche de données Raster
+# Optimisation Idée
+# Ouvrir une couche vecteur donner
+def openVectorFile(path,typefile, layer=''):
+    #shapefile with the from projection
+    driver = ogr.GetDriverByName(typefile)
+    dataSource = driver.Open(path, 0)
+    if layer == "":
+        return dataSource.GetLayer()
+    else:
+        print(layer)
+        return dataSource.GetLayer(layer)
+
+# Fermer une couche vecteur
+def closeVectorFile():
+    hello = ''
+    return hello
+
+# Créer couche de données Raster
+def openRasterFile():
+    hello = ''
+    return hello
+
+# Fermer une couche raster
+def closeRasterFile():
+    hello = ''
+    return hello
 
 # Donne la référence spatiale de référence
 
@@ -41,19 +73,19 @@ def setUpDirectory(path):
 # Reprojection des couches à utiliser
 def reprojection_Layer(input, typefile, layer=""):
 
-    #shapefile with the from projection
+    # #shapefile with the from projection
     driver = ogr.GetDriverByName(typefile)
-    dataSource =   driver.Open(input, 0)
+    dataSource = driver.Open(input, 0)
     if layer == "":
         inp_lyr = dataSource.GetLayer()
     else:
         print(layer)
         inp_lyr = dataSource.GetLayer(layer)
+    # inp_lyr = openVectorFile(input, typefile, layer)
     output = input
     #set spatial reference and transformation
     sourceprj = inp_lyr.GetSpatialRef()
-    print(sourceprj.GetAttrValue("UNIT", 1))
-    print(projection.GetAttrValue("UNIT", 1))
+    
     if sourceprj != projection:
         if layer == "":
             output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", input.split("\\")[-1])
@@ -258,6 +290,15 @@ def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData
     # compute the proximity
     gdal.ComputeProximity(band,band2,["VALUES=1","DISTUNITS=GEO"])
     file2.FlushCache()
+
+# Get stats des raster en entrée
+def raster_Stats(raster):
+    # open raster and choose band to find min, max
+    gtif = gdal.Open(raster)
+    srcband = gtif.GetRasterBand(1)
+    # Get raster statistics
+    stats = srcband.GetStatistics(True, True)
+    return stats
 
 # Slope calculator
 # https://gdal.org/python/

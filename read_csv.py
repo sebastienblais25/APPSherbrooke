@@ -7,7 +7,7 @@ class readCSV:
         self.path = path
     
     # Lecture du csv pour ajouter les couches de critères et les rasteriz edans une liste pour ensuites les retourner
-    def read_layer(self):
+    def read_criteria_layer(self):
         layerlist = []
         with open(os.path.join(self.path,'source.csv')) as csvfile:
             layerReader = csv.reader(csvfile)
@@ -26,4 +26,26 @@ class readCSV:
                     layerlist.append(addLayer)
         return layerlist
 
+    # Lecture du CSV pour ajouter les couches de facteur en faisant la rasterize plus proximity si necessaire
+    def read_factor_layer(self):
+        layerlist = []
+        with open(os.path.join(self.path,'source.csv')) as csvfile:
+            layerReader = csv.reader(csvfile)
+            for idx,i in enumerate(layerReader):
+                # Skip la premiere ligne avec les noms de colonnes
+                if idx != 0:
+                    # Affichage des colonnes
+                    print (', '.join(i))
+                    # Création de la classe
+                    addLayer = layer(i[3],i[2],i[1],i[4],10)
+                    # Reprojection
+                    addLayer.reprojectLayer()
+                    # Rasterize
+                    addLayer.setRasterLayer()
+                    # Proximity si necessaire
+                    if i[6] == 'proximity':
+                        addLayer.setProximityLayer()
+                    # Ajout à la liste
+                    layerlist.append(addLayer)
+        return layerlist
 

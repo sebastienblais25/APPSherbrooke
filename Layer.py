@@ -49,6 +49,11 @@ class layer:
             shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')
             self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
     
+    # Rasterize les critère dans une grandeur de cellule voulu
+    def setProximityLayer(self):
+        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(r'D:\dumping_codes\APPSherbrooke\proximity',self.name + ".tiff"),5)
+        # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
+    
     # Reclassify the raster layer with 
 
 
