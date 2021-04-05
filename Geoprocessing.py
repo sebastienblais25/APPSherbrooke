@@ -66,9 +66,36 @@ def closeRasterFile():
     hello = ''
     return hello
 
-# Donne la référence spatiale de référence
-
 # Donne l'extent de référence
+def getExtent(input):
+    # Chercher le driver pour la lecture
+    inp_driver = ogr.GetDriverByName(type_input)
+    # Lecture du fichier
+    inp_source = inp_driver.Open(input, 0)
+    # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
+    if layer == "":
+        inp_lyr = inp_source.GetLayer()
+    else:
+        print(layer)
+        inp_lyr = inp_source.GetLayer(layer)
+    # On va chercher les références spatiales de la couches
+    return inp_lyr.GetExtent()
+
+# Donne la référence spatiale de référence
+def getproj(input):
+    # #shapefile with the from projection
+    driver = ogr.GetDriverByName(typefile)
+    dataSource = driver.Open(input, 0)
+    if layer == "":
+        inp_lyr = dataSource.GetLayer()
+    else:
+        print(layer)
+        inp_lyr = dataSource.GetLayer(layer)
+    # inp_lyr = openVectorFile(input, typefile, layer)
+    output = input
+    #set spatial reference and transformation
+    sourceprj = inp_lyr.GetSpatialRef()
+    return sourceprj
 
 # Reprojection des couches à utiliser
 def reprojection_Layer(input, typefile, layer=""):
