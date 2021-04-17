@@ -1,4 +1,4 @@
 Axe,path,weight,name,name_layer,colonne,Prétraitement
-Environnnement,D:\APP_data\espèces à statut CDPNQ\espece_statut_flore\Occurences_CDPNQ_flore_shapefile_210315\flore.shp,1,flore,,,proximity
-Environnnement,D:\APP_data\espèces à statut CDPNQ\faune\Faune.shp,1,faune,,,proximity
-Environnement,D:\APP_data\Carto_mhs_sudqc_2020.gdb,1,mh,Milieux_humides_sudqc_2020,superficie < 4,proximity
+Environnnement,D:\APP_data\parc_industrielAMC.gpkg,1,zone_inon,zone_inondable,,
+Environnnement,D:\APP_data\parc_industrielAMC.gpkg,1,PerUrbain,GOcite_nov2020 PerimetreUrbainSchema,,
+Environnement,D:\APP_data\parc_industrielAMC.gpkg,1,Riviere,GOcite_nov2020 Riviere,,

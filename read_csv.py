@@ -22,6 +22,9 @@ class readCSV:
                     print('Reprojection de la couches..... '+ i[3])
                     addLayer.reprojectLayer()
                     print('Reprojection terminé')
+                    # Buffer if necessary
+                    if 'Buffer' in i[6]:
+                        addLayer.bufferLayer()
                     # Rasterize
                     print('Rasterize de la couches..... '+ i[3])
                     addLayer.setRasterLayer()
@@ -42,12 +45,15 @@ class readCSV:
                     print (', '.join(i))
                     # Création de la classe
                     addLayer = layer(i[3],i[2],i[1],i[4],10)
+                    # Buffer if necessary
+                    if 'Buffer' in i[6]:
+                        addLayer.bufferLayer()
                     # Reprojection
                     addLayer.reprojectLayer()
                     # Rasterize
                     addLayer.setRasterLayer()
                     # Proximity si necessaire
-                    if i[6] == 'proximity':
+                    if 'proximity' in i[6]:
                         addLayer.setProximityLayer()
                     # Ajout à la liste
                     layerlist.append(addLayer)

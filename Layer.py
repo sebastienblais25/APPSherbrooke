@@ -24,15 +24,20 @@ class layer:
             self.path = geo.reprojection_Layer(self.path,'ESRI Shapefile')
         elif extension == 'gdb':
             self.path = geo.reprojection_Layer(self.path,'OpenFileGDB',self.layerName)
+        elif extension == "gpkg":
+            self.path = geo.reprojection_Layer(self.path,'GPKG',self.layerName)
 
     # Rasterize les critère dans une grandeur de cellule voulu
     def setRasterLayer(self):
         extension = self.path.split('.')[1]
         if extension == 'shp':
-            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10)
+            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),50)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
-            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),10,self.layerName)
+            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),50,self.layerName)
+            # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
+        elif extension == 'gpkg':
+            self.rasPath = geo.Feature_to_Raster(self.path,'GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),50,self.layerName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
             shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')
@@ -40,8 +45,12 @@ class layer:
     
     # Rasterize les critère dans une grandeur de cellule voulu
     def setProximityLayer(self):
-        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(r'D:\dumping_codes\APPSherbrooke\proximity',self.name + ".tiff"),10)
+        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(r'D:\dumping_codes\APPSherbrooke\proximity',self.name + ".tiff"),50)
         # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
+    
+    # Mets un buffer sur couches qui n'est pas un polygone
+    def bufferLayer(self):
+        self.path = geo.bufferLineAndPoints(self.path,os.path.join(r'D:\dumping_codes\APPSherbrooke\buffer',self.name+'.shp'),1,self.layerName)
     
     # Reclassify the raster layer with 
 

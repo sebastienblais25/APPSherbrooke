@@ -43,31 +43,31 @@ def cleanUpDirectory(path):
     shutil.rmtree(os.path.join(path,'proximity'))
     shutil.rmtree(os.path.join(path,'reproject'))   
 
-# Optimisation Idée
-# Ouvrir une couche vecteur donner
-def openVectorFile(path,typefile, layer=''):
-    #shapefile with the from projection
-    driver = ogr.GetDriverByName(typefile)
-    dataSource = driver.Open(path, 0)
-    if layer == "":
-        return dataSource.GetLayer()
-    else:
-        return dataSource.GetLayer(layer)
+# Permet de mettre un petit buffer autour des objet qui ne sont pas des polygones pour réaliser un rasterize
+def bufferLineAndPoints(inputfn, outputBufferfn, bufferDist,layername):
+    inputds = ogr.Open(inputfn)
+    inputlyr = inputds.GetLayer(layername)
 
-# Fermer une couche vecteur
-def closeVectorFile():
-    hello = ''
-    return hello
+    shpdriver = ogr.GetDriverByName('ESRI Shapefile')
+    if os.path.exists(outputBufferfn):
+        shpdriver.DeleteDataSource(outputBufferfn)
+    outputBufferds = shpdriver.CreateDataSource(outputBufferfn)
+    bufferlyr = outputBufferds.CreateLayer(outputBufferfn, geom_type=ogr.wkbPolygon)
+    featureDefn = bufferlyr.GetLayerDefn()
 
-# Créer couche de données Raster
-def openRasterFile():
-    hello = ''
-    return hello
+    for feature in inputlyr:
+        ingeom = feature.GetGeometryRef()
+        geomBuffer = ingeom.Buffer(bufferDist)
 
-# Fermer une couche raster
-def closeRasterFile():
-    hello = ''
-    return hello
+        outFeature = ogr.Feature(featureDefn)
+        outFeature.SetGeometry(geomBuffer)
+        bufferlyr.CreateFeature(outFeature)
+
+
+    bufferlyr.SetProjection(inp_lyr.GetSpatialRef().ExportToWkt())
+
+    ds = None
+    return outputBufferfn
 
 # Donne l'extent de référence
 def getExtent(input):
@@ -123,7 +123,11 @@ def reprojection_Layer(input, typefile, layer=""):
         to_fill = ogr.GetDriverByName("Esri Shapefile")
         ds = to_fill.CreateDataSource(output)
         outlayer = ds.CreateLayer('', projection, ogr.wkbPolygon)
-        outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
+        #outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
+        fields = [field.name for field in inp_lyr.schema]
+
+        for i in fields:
+            outlayer.CreateField(ogr.FieldDefn(i, ogr.OFTString))
 
         #apply transformation
         i = 0
@@ -135,7 +139,9 @@ def reprojection_Layer(input, typefile, layer=""):
             geom = ogr.CreateGeometryFromWkb(transformed.ExportToWkb())
             defn = outlayer.GetLayerDefn()
             feat = ogr.Feature(defn)
-            feat.SetField('id', i)
+            #feat.SetField('id', i)
+            for idx, outfield in enumerate(outlayer.schema):
+                feat.SetField(outfield.name, feature.GetField(inp_lyr.schema[idx].name))
             feat.SetGeometry(geom)
             outlayer.CreateFeature(feat)
             i += 1
@@ -182,8 +188,12 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
 
     # Rasterize
     if field_name:
-        gdal.RasterizeLayer(out_source, [1], inp_lyr,
-                            options=["ATTRIBUTE={0}".format(field_name)])
+        # inp_lyr.CreateField(ogr.FieldDefn('rasterize', ogr.OFTInteger))
+        # for feat in inp_lyr:
+        #     if feat.GetField('GROUPEUSAGE') == 'P':
+        #         feat.SetField('rasterize',1)
+        inp_lyr.SetAttributeFilter(field_name)
+        gdal.RasterizeLayer(out_source, [1], inp_lyr, burn_values=[1])
     else:
         gdal.RasterizeLayer(out_source, [1], inp_lyr, burn_values=[1])
 
@@ -364,5 +374,6 @@ def calculate_slope(DEM):
 
 # Exemple hos to run the function
 # Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
-# Feature_to_Raster(r'D:\APP_data\Carto_mhs_sudqc_2020.gdb','OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','geoSpa' + ".tiff"),10,'Milieux_humides_sudqc_2020')
-# reprojection_Layer(r'D:\APP_data\Carto_mhs_sudqc_2020.gdb','OpenFileGDB','Milieux_humides_sudqc_2020')
+Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','zonage' + ".tiff"),10,'GOcite_nov2020 ZonageMunicipal',  "GROUPEUSAGE in ('P','I','N','A')")
+# reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
+# bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')
