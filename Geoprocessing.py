@@ -27,10 +27,14 @@ def setUpDirectory(path):
     if os.path.exists(os.path.join(path,'finalProduct')):
         shutil.rmtree(os.path.join(path,'finalProduct'))
     os.mkdir(os.path.join(path,'finalProduct'))
-    # Create folder for the finalProduct
+    # Create folder for the reproject
     if os.path.exists(os.path.join(path,'reproject')):
         shutil.rmtree(os.path.join(path,'reproject'))
     os.mkdir(os.path.join(path,'reproject'))
+    # Create folder for the reclassify
+    if os.path.exists(os.path.join(path,'reclassify')):
+        shutil.rmtree(os.path.join(path,'reclassify'))
+    os.mkdir(os.path.join(path,'reclassify'))
 
 # Clean tous les dossier pour prendre l moins d'espace possible
 def cleanUpDirectory(path):
@@ -48,7 +52,6 @@ def openVectorFile(path,typefile, layer=''):
     if layer == "":
         return dataSource.GetLayer()
     else:
-        print(layer)
         return dataSource.GetLayer(layer)
 
 # Fermer une couche vecteur
@@ -76,7 +79,6 @@ def getExtent(input):
     if layer == "":
         inp_lyr = inp_source.GetLayer()
     else:
-        print(layer)
         inp_lyr = inp_source.GetLayer(layer)
     # On va chercher les références spatiales de la couches
     return inp_lyr.GetExtent()
@@ -89,7 +91,6 @@ def getproj(input):
     if layer == "":
         inp_lyr = dataSource.GetLayer()
     else:
-        print(layer)
         inp_lyr = dataSource.GetLayer(layer)
     # inp_lyr = openVectorFile(input, typefile, layer)
     output = input
@@ -106,7 +107,6 @@ def reprojection_Layer(input, typefile, layer=""):
     if layer == "":
         inp_lyr = dataSource.GetLayer()
     else:
-        print(layer)
         inp_lyr = dataSource.GetLayer(layer)
     # inp_lyr = openVectorFile(input, typefile, layer)
     output = input
@@ -118,7 +118,6 @@ def reprojection_Layer(input, typefile, layer=""):
             output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", input.split("\\")[-1])
         else: 
             output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", layer + '.shp')
-        print(output)
         transform = osr.CoordinateTransformation(sourceprj, projection)
         
         to_fill = ogr.GetDriverByName("Esri Shapefile")
@@ -159,7 +158,6 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     if layer == "":
         inp_lyr = inp_source.GetLayer()
     else:
-        print(layer)
         inp_lyr = inp_source.GetLayer(layer)
     # On va chercher les références spatiales de la couches
     inp_srs = inp_lyr.GetSpatialRef()
@@ -197,19 +195,39 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     return output_tiff 
 
 # Reclassify À corriger
-def Reclassify_Raster(input,output):
+def Reclassify_Raster(input,output, maskin):
     driver = gdal.GetDriverByName('GTiff')
     file = gdal.Open(input)
     band = file.GetRasterBand(1)
     lista = band.ReadAsArray()
 
+    mask= gdal.Open(maskin)
+    bandmask = mask.GetRasterBand(1)
+    listMask = bandmask.ReadAsArray()
+
     # reclassification
     for j in  range(file.RasterXSize):
         for i in  range(file.RasterYSize):
-            if lista[i,j] == 1:
-                lista[i,j] = 0
+            if lista[i,j] < 200:
+                if listMask[i,j] == 0:
+                    lista[i,j] = 10
+                else:
+                    lista[i,j] = 0
+            elif lista[i,j] < 500:
+                if listMask[i,j] == 0:
+                    lista[i,j] = 20
+                else:
+                    lista[i,j] = 0
+            elif lista[i,j] < 1000:
+                if listMask[i,j] == 0:
+                    lista[i,j] = 30
+                else:
+                    lista[i,j] = 0
             else:
-                lista[i,j] = 1
+                if listMask[i,j] == 0:
+                    lista[i,j] = 70
+                else:
+                    lista[i,j] = 0
             #     lista[i,j] = 2
             # elif 400 < lista[i,j] < 600:
             #     lista[i,j] = 3
@@ -219,7 +237,7 @@ def Reclassify_Raster(input,output):
             #     lista[i,j] = 5
 
     # Création d'un nouveau fichier pour la nouvelle reclassification
-    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
+    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
     # Ajout de la matrice dans le fichier
     file2.GetRasterBand(1).WriteArray(lista)
 
@@ -228,7 +246,9 @@ def Reclassify_Raster(input,output):
     georef = file.GetGeoTransform()
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
-    file2.FlushCache() 
+    file2.FlushCache()
+
+    return output
 
 # Raster Calculator pour les critère
 def raster_Calculator(list_input, output):
@@ -236,7 +256,6 @@ def raster_Calculator(list_input, output):
     list_array = []
     # Ouvre tous les fichiers a lire
     for i in list_input:
-        print(i.rasPath)
         file = gdal.Open(i.rasPath)
         band = file.GetRasterBand(1)
         list_array.append(band.ReadAsArray())
@@ -263,25 +282,27 @@ def raster_Calculator(list_input, output):
     georef = file.GetGeoTransform()
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
-    file2.FlushCache()   
+    file2.FlushCache()
+
+    return output
 
 # Raster Calculator pour les facteur a travailler
-def raster_Calculator_factor(list_input, output, operator):
+def raster_Calculator_factor(list_input, output):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
     for i in list_input:
-        file = gdal.Open(i)
+        file = gdal.Open(i.rasPath)
         band = file.GetRasterBand(1)
         list_array.append(band.ReadAsArray())
 
     for idx, i in enumerate(list_array):
         if idx == 0 :
-            calc = (i * 0.5)
+            calc = (i * 0.33)
         else:
-            calc = (i * 0.5)
+            calc = (i * 0.33)
 
     # create new file
-    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1)
+    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
     file2.GetRasterBand(1).WriteArray(calc)
     file2.GetRasterBand(1).SetNoDataValue(0)
 
@@ -291,6 +312,7 @@ def raster_Calculator_factor(list_input, output, operator):
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
     file2.FlushCache()
+    return output
 
 # Calcule la proximité du raster à partir des rasters créer du feature_to_raster
 def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData_value=0):
@@ -317,6 +339,8 @@ def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData
     # compute the proximity
     gdal.ComputeProximity(band,band2,["VALUES=1","DISTUNITS=GEO"])
     file2.FlushCache()
+
+    return output
 
 # Get stats des raster en entrée
 def raster_Stats(raster):

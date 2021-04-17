@@ -1,0 +1,4 @@
+Axe,path,weight,name,name_layer,colonne,Prétraitement
+Environnnement,D:\APP_data\espèces à statut CDPNQ\espece_statut_flore\Occurences_CDPNQ_flore_shapefile_210315\flore.shp,1,flore2,,,proximity
+Environnnement,D:\APP_data\espèces à statut CDPNQ\faune\Faune.shp,1,faune2,,,proximity
+Environnement,D:\APP_data\Carto_mhs_sudqc_2020.gdb,1,mh2,Milieux_humides_sudqc_2020,superficie < 4,proximity
