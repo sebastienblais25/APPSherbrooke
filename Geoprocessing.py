@@ -125,7 +125,6 @@ def reprojection_Layer(input, typefile, layer=""):
         outlayer = ds.CreateLayer('', projection, ogr.wkbPolygon)
         #outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
         fields = [field.name for field in inp_lyr.schema]
-
         for i in fields:
             outlayer.CreateField(ogr.FieldDefn(i, ogr.OFTString))
 
@@ -141,7 +140,10 @@ def reprojection_Layer(input, typefile, layer=""):
             feat = ogr.Feature(defn)
             #feat.SetField('id', i)
             for idx, outfield in enumerate(outlayer.schema):
-                feat.SetField(outfield.name, feature.GetField(inp_lyr.schema[idx].name))
+                try:
+                    feat.SetField(feat.GetFieldIndex(outfield.name), str(feature.GetField(inp_lyr.schema[idx].name)))
+                except:
+                    print('Special Character')
             feat.SetGeometry(geom)
             outlayer.CreateFeature(feat)
             i += 1
@@ -152,19 +154,22 @@ def reprojection_Layer(input, typefile, layer=""):
     return output
 
 # Fonction pour effectuer un rasterize sur les fichiers vectorielle
-def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_name=False, NoData_value=0):
+def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", burnvalue=False, field_name=False, NoData_value=0):
     """
     Converts a shapefile into a raster
     """
-    # Chercher le driver pour la lecture
-    inp_driver = ogr.GetDriverByName(type_input)
-    # Lecture du fichier
-    inp_source = inp_driver.Open(input, 0)
-    # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
-    if layer == "":
-        inp_lyr = inp_source.GetLayer()
-    else:
-        inp_lyr = inp_source.GetLayer(layer)
+    try:
+        # Chercher le driver pour la lecture
+        inp_driver = ogr.GetDriverByName(type_input)
+        # Lecture du fichier
+        inp_source = inp_driver.Open(input, 0)
+        # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
+        if layer == "":
+            inp_lyr = inp_source.GetLayer()
+        else:
+            inp_lyr = inp_source.GetLayer(layer)
+    except:
+        raise Exception('Impossible to read the layer')
     # On va chercher les références spatiales de la couches
     inp_srs = inp_lyr.GetSpatialRef()
 
@@ -184,17 +189,18 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     out_source.SetGeoTransform((x_min, cellsize, 0, y_max, 0, -cellsize))
     out_source.SetProjection(inp_srs.ExportToWkt())
     out_lyr = out_source.GetRasterBand(1)
-    out_lyr.SetNoDataValue(NoData_value)
+    
 
     # Rasterize
     if field_name:
-        # inp_lyr.CreateField(ogr.FieldDefn('rasterize', ogr.OFTInteger))
-        # for feat in inp_lyr:
-        #     if feat.GetField('GROUPEUSAGE') == 'P':
-        #         feat.SetField('rasterize',1)
+        out_lyr.SetNoDataValue(NoData_value)
         inp_lyr.SetAttributeFilter(field_name)
         gdal.RasterizeLayer(out_source, [1], inp_lyr, burn_values=[1])
+    elif burnvalue:
+        out_lyr.SetNoDataValue(-6999)
+        gdal.RasterizeLayer(out_source, [1], inp_lyr, burn_values=[255],options = ["ATTRIBUTE=%s" % burnvalue])
     else:
+        out_lyr.SetNoDataValue(NoData_value)
         gdal.RasterizeLayer(out_source, [1], inp_lyr, burn_values=[1])
 
     # Save and/or close the data sources
@@ -205,7 +211,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", field_
     return output_tiff 
 
 # Reclassify À corriger
-def Reclassify_Raster(input,output, maskin):
+def Reclassify_Raster(input,output, maskin,table):
     driver = gdal.GetDriverByName('GTiff')
     file = gdal.Open(input)
     band = file.GetRasterBand(1)
@@ -214,37 +220,33 @@ def Reclassify_Raster(input,output, maskin):
     mask= gdal.Open(maskin)
     bandmask = mask.GetRasterBand(1)
     listMask = bandmask.ReadAsArray()
+    reclassif = table.split(';')
 
     # reclassification
     for j in  range(file.RasterXSize):
         for i in  range(file.RasterYSize):
-            if lista[i,j] < 200:
+            if lista[i,j] <= int(reclassif[0].split(':')[0]):
                 if listMask[i,j] == 0:
-                    lista[i,j] = 10
+                    lista[i,j] = float(reclassif[0].split(':')[1])
                 else:
                     lista[i,j] = 0
-            elif lista[i,j] < 500:
+            elif lista[i,j] <= int(reclassif[1].split(':')[0]):
                 if listMask[i,j] == 0:
-                    lista[i,j] = 20
+                    lista[i,j] = float(reclassif[1].split(':')[1])
                 else:
                     lista[i,j] = 0
-            elif lista[i,j] < 1000:
+            elif lista[i,j] <= int(reclassif[2].split(':')[0]):
                 if listMask[i,j] == 0:
-                    lista[i,j] = 30
+                    lista[i,j] = float(reclassif[2].split(':')[1])
+                else:
+                    lista[i,j] = 0
+            elif lista[i,j] <= int(reclassif[3].split(':')[0]):
+                if listMask[i,j] == 0:
+                    lista[i,j] = float(reclassif[3].split(':')[1])
                 else:
                     lista[i,j] = 0
             else:
-                if listMask[i,j] == 0:
-                    lista[i,j] = 70
-                else:
-                    lista[i,j] = 0
-            #     lista[i,j] = 2
-            # elif 400 < lista[i,j] < 600:
-            #     lista[i,j] = 3
-            # elif 600 < lista[i,j] < 800:
-            #     lista[i,j] = 4
-            # else:
-            #     lista[i,j] = 5
+                lista[i,j] = -1
 
     # Création d'un nouveau fichier pour la nouvelle reclassification
     file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
@@ -307,9 +309,9 @@ def raster_Calculator_factor(list_input, output):
 
     for idx, i in enumerate(list_array):
         if idx == 0 :
-            calc = (i * 0.33)
+            calc = (i * float(list_input[idx].weight))
         else:
-            calc = (i * 0.33)
+            calc += (i * float(list_input[idx].weight))
 
     # create new file
     file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
@@ -374,6 +376,6 @@ def calculate_slope(DEM):
 
 # Exemple hos to run the function
 # Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
-Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','zonage' + ".tiff"),10,'GOcite_nov2020 ZonageMunicipal',  "GROUPEUSAGE in ('P','I','N','A')")
+Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
 # reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')

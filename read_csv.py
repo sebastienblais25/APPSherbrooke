@@ -17,7 +17,10 @@ class readCSV:
                     # Affichage des colonnes
                     print (', '.join(i))
                     # Création de la classe
-                    addLayer = layer(i[3],i[2],i[1],i[4],10)
+                    if i[5] != "":
+                        addLayer = layer(i[3],i[2],i[1],i[4],50,False,i[5])
+                    else:
+                        addLayer = layer(i[3],i[2],i[1],i[4],50)
                     # Reprojection
                     print('Reprojection de la couches..... '+ i[3])
                     addLayer.reprojectLayer()
@@ -44,7 +47,10 @@ class readCSV:
                     # Affichage des colonnes
                     print (', '.join(i))
                     # Création de la classe
-                    addLayer = layer(i[3],i[2],i[1],i[4],10)
+                    if i[5] != "":
+                        addLayer = layer(i[3],i[2],i[1],i[4],50,i[5],False,i[7])
+                    else:
+                        addLayer = layer(i[3],i[2],i[1],i[4],50,False,False,i[7])
                     # Buffer if necessary
                     if 'Buffer' in i[6]:
                         addLayer.bufferLayer()

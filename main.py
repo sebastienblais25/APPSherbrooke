@@ -8,6 +8,9 @@ import pathlib
 import shutil
 
 
+# line to start the code : python 
+
+
 ## sherbrooke
 path = pathlib.Path().absolute()
 

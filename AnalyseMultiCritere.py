@@ -49,7 +49,7 @@ class AnalyseMultiCritere:
     def reclassifyFactor(self, liste_reclassifier):
         print('Reclassification des facteurs ............. ')
         for idx,i in enumerate(liste_reclassifier):
-            i.rasPath = geo.Reclassify_Raster(i.rasPath, os.path.join(r'D:\dumping_codes\APPSherbrooke\reclassify', i.name+'.tiff'),self.mask)
+            i.rasPath = geo.Reclassify_Raster(i.rasPath, os.path.join(r'D:\dumping_codes\APPSherbrooke\reclassify', i.name+'.tiff'),self.mask,i.table)
         print('Reclassification .......... Terminé')
 
     # Réalisation du raster calculator pour une liste de couches de donnée pour donnée une couches final pour le produits final
