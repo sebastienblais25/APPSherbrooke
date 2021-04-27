@@ -4,6 +4,10 @@ import gdal
 import Geoprocessing as geo
 import os
 import shutil
+import pathlib
+
+## sherbrooke
+path = pathlib.Path().absolute()
 
 # Classe pour les couches de données et faire certains prétraitement dessus pour l'Analyse multi-critère
 class layer:
@@ -33,21 +37,21 @@ class layer:
     def setRasterLayer(self):
         extension = self.path.split('.')[1]
         if extension == 'shp':
-            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),self.cellsize,'',self.burnValue,self.fieldName)
+            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,'',self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
-            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
+            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gpkg':
-            self.rasPath = geo.Feature_to_Raster(self.path,'GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
+            self.rasPath = geo.Feature_to_Raster(self.path,'GPKG',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
-            shutil.copyfile(self.path,r'D:\dumping_codes\APPSherbrooke\raster')
-            self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
+            shutil.copyfile(self.path, os.path.join(path,'raster'))
+            self.rasPath = os.path.join(path,'raster',self.name + ".tiff")
     
     # Rasterize les critère dans une grandeur de cellule voulu
     def setProximityLayer(self):
-        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(r'D:\dumping_codes\APPSherbrooke\proximity',self.name + ".tiff"),self.cellsize)
+        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(path,'proximity',self.name + ".tiff"),self.cellsize)
         # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
     
     # Mets un buffer sur couches qui n'est pas un polygone
