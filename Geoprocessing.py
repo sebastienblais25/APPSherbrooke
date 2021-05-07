@@ -2,18 +2,23 @@ import numpy as np
 import os
 import random
 import shutil
+import pathlib
 from osgeo import ogr
 from osgeo import osr
 from osgeo import gdal, gdal_array
 
+path = pathlib.Path().absolute()
 projection = osr.SpatialReference(wkt = r'PROJCS["NAD83 / MTM zone 7",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-70.5],PARAMETER["scale_factor",0.9999],PARAMETER["false_easting",304800],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["E(X)",EAST],AXIS["N(Y)",NORTH],AUTHORITY["EPSG","32187"]]')
 
 
 # Setup les dossiers pour que le programmes fonctionne comme il le faut
 def setUpDirectory(path):
     # Check if the folder of source layer
-    if not os.path.exists(os.path.join(path,'source')):
-        print('add the source folder for the multicriteria analysis')
+    try:
+        if not os.path.exists(os.path.join(path,'source')):
+            print('add the source folder for the multicriteria analysis')
+    except:
+        raise('Fichier est ouvert')
     # Create folder for the raster
     if os.path.exists(os.path.join(path,'raster')):
         shutil.rmtree(os.path.join(path,'raster'))
@@ -100,23 +105,23 @@ def getproj(input):
 # Reprojection des couches à utiliser
 def reprojection_Layer(input, typefile, layer=""):
 
-    # #shapefile with the from projection
+    # read Layer 
     driver = ogr.GetDriverByName(typefile)
     dataSource = driver.Open(input, 0)
     if layer == "":
         inp_lyr = dataSource.GetLayer()
     else:
         inp_lyr = dataSource.GetLayer(layer)
-    # inp_lyr = openVectorFile(input, typefile, layer)
+    
     output = input
     #set spatial reference and transformation
     sourceprj = inp_lyr.GetSpatialRef()
-    
+    # les path sont a changer sont hardcoder
     if sourceprj != projection:
         if layer == "":
-            output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", input.split("\\")[-1])
+            output = os.path.join(path,"reproject", input.split("\\")[-1])
         else: 
-            output = os.path.join(r"D:\dumping_codes\APPSherbrooke\reproject", layer + '.shp')
+            output = os.path.join(path,"reproject", layer + '.shp')
         transform = osr.CoordinateTransformation(sourceprj, projection)
         
         to_fill = ogr.GetDriverByName("Esri Shapefile")
@@ -142,7 +147,7 @@ def reprojection_Layer(input, typefile, layer=""):
                 try:
                     feat.SetField(feat.GetFieldIndex(outfield.name), str(feature.GetField(inp_lyr.schema[idx].name)))
                 except:
-                    print('Special Character')
+                    pass
             feat.SetGeometry(geom)
             outlayer.CreateFeature(feat)
             i += 1
@@ -211,11 +216,13 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", burnva
 
 # Reclassify À corriger
 def Reclassify_Raster(input,output, maskin,table):
+    # open layer
     driver = gdal.GetDriverByName('GTiff')
     file = gdal.Open(input)
     band = file.GetRasterBand(1)
     lista = band.ReadAsArray()
 
+    # mask layer
     mask= gdal.Open(maskin)
     bandmask = mask.GetRasterBand(1)
     listMask = bandmask.ReadAsArray()
@@ -375,6 +382,6 @@ def calculate_slope(DEM):
 
 # Exemple hos to run the function
 # Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
-Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
+# Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
 # reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')
