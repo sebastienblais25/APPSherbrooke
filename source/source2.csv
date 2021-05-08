@@ -1,6 +1,10 @@
-Axe,path,weight,name,name_layer,colonne,Prétraitement,table,condition
+Axe,path,weight,name,name_layer,colonne,PrÃ©traitement,table,condition
 Environnnement,D:\APP_data\parc_industrielAMC.gpkg,0.1,faune,faune_reproj,,,0:100;1:10;5:5;6:6,
 Environnnement,D:\APP_data\parc_industrielAMC.gpkg,0.3,foret,foret_sherbrooke,age,,10:100;60:70;80:50;120:10,
 Environnnement,D:\APP_data\Output_pretraitement\Hydrologie\hydrologie_merge.shp,0.15,hydro_prox,,,proximity,100:10;300:50;800:80;10000000:100,
 Environnnement,D:\APP_data\parc_industrielAMC.gpkg,0.15,mh_prox,mh_canards_illimite,,proximity,100:10;300:50;800:80;10000000:100,cast(protect as character) = '0'
 Environnnement,D:\APP_data\parc_industrielAMC.gpkg,0.3,mh,mh_canards_illimite,,,0:100;1:10;5:5;6:6,cast(protect as character) = '0'
+Economique,D:\Session5UDES\APP2\Donnees_script\Autoroute.gpkg,0.3,Autoroute,Autoroute,,proximity,1000:100;2500:80;5000:60;9000:40;99999999:20,
+Economique,D:\Session5UDES\APP2\Donnees_script\Valeur.gpkg,0.4,Valeur,Valeur,SUPERFICIE,,5000:20;100000:40;400000:60;1000000:80;999999999:100,
+Economique,D:\Session5UDES\APP2\Donnees_script\Valeur.gpkg,0.15,Valeur,Valeur,valprop,,150000:100;300000:80;500000:60;1000000:40;999999999:20,
+Economique,D:\Session5UDES\APP2\Donnees_script\Valeur.gpkg,0.15,Valeur,Valeur,Area_value,,1:100;2:80;5:60;15:40;999999999:20,
