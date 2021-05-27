@@ -1,11 +1,10 @@
 import numpy as np
 import os
-import random
 import shutil
 import pathlib
 from osgeo import ogr
 from osgeo import osr
-from osgeo import gdal, gdal_array
+from osgeo import gdal
 
 path = pathlib.Path().absolute()
 projection = osr.SpatialReference(wkt = r'PROJCS["NAD83 / MTM zone 7",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-70.5],PARAMETER["scale_factor",0.9999],PARAMETER["false_easting",304800],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["E(X)",EAST],AXIS["N(Y)",NORTH],AUTHORITY["EPSG","32187"]]')
@@ -47,60 +46,60 @@ def cleanUpDirectory(path):
     shutil.rmtree(os.path.join(path,'proximity'))
     shutil.rmtree(os.path.join(path,'reproject'))   
 
-# Permet de mettre un petit buffer autour des objet qui ne sont pas des polygones pour réaliser un rasterize
-def bufferLineAndPoints(inputfn, outputBufferfn, bufferDist,layername):
-    inputds = ogr.Open(inputfn)
-    inputlyr = inputds.GetLayer(layername)
+# # Permet de mettre un petit buffer autour des objet qui ne sont pas des polygones pour réaliser un rasterize
+# def bufferLineAndPoints(inputfn, outputBufferfn, bufferDist,layername):
+#     inputds = ogr.Open(inputfn)
+#     inputlyr = inputds.GetLayer(layername)
 
-    shpdriver = ogr.GetDriverByName('ESRI Shapefile')
-    if os.path.exists(outputBufferfn):
-        shpdriver.DeleteDataSource(outputBufferfn)
-    outputBufferds = shpdriver.CreateDataSource(outputBufferfn)
-    bufferlyr = outputBufferds.CreateLayer(outputBufferfn, geom_type=ogr.wkbPolygon)
-    featureDefn = bufferlyr.GetLayerDefn()
+#     shpdriver = ogr.GetDriverByName('ESRI Shapefile')
+#     if os.path.exists(outputBufferfn):
+#         shpdriver.DeleteDataSource(outputBufferfn)
+#     outputBufferds = shpdriver.CreateDataSource(outputBufferfn)
+#     bufferlyr = outputBufferds.CreateLayer(outputBufferfn, geom_type=ogr.wkbPolygon)
+#     featureDefn = bufferlyr.GetLayerDefn()
 
-    for feature in inputlyr:
-        ingeom = feature.GetGeometryRef()
-        geomBuffer = ingeom.Buffer(bufferDist)
+#     for feature in inputlyr:
+#         ingeom = feature.GetGeometryRef()
+#         geomBuffer = ingeom.Buffer(bufferDist)
 
-        outFeature = ogr.Feature(featureDefn)
-        outFeature.SetGeometry(geomBuffer)
-        bufferlyr.CreateFeature(outFeature)
+#         outFeature = ogr.Feature(featureDefn)
+#         outFeature.SetGeometry(geomBuffer)
+#         bufferlyr.CreateFeature(outFeature)
 
 
-    bufferlyr.SetProjection(inp_lyr.GetSpatialRef().ExportToWkt())
+#     bufferlyr.SetProjection(inplyr.GetSpatialRef().ExportToWkt())
 
-    ds = None
-    return outputBufferfn
+#     ds = None
+#     return outputBufferfn
 
-# Donne l'extent de référence
-def getExtent(input):
-    # Chercher le driver pour la lecture
-    inp_driver = ogr.GetDriverByName(type_input)
-    # Lecture du fichier
-    inp_source = inp_driver.Open(input, 0)
-    # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
-    if layer == "":
-        inp_lyr = inp_source.GetLayer()
-    else:
-        inp_lyr = inp_source.GetLayer(layer)
-    # On va chercher les références spatiales de la couches
-    return inp_lyr.GetExtent()
+# # Donne l'extent de référence
+# def getExtent(input):
+#     # Chercher le driver pour la lecture
+#     inp_driver = ogr.GetDriverByName(type_input)
+#     # Lecture du fichier
+#     inp_source = inp_driver.Open(input, 0)
+#     # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
+#     if layer == "":
+#         inp_lyr = inp_source.GetLayer()
+#     else:
+#         inp_lyr = inp_source.GetLayer(layer)
+#     # On va chercher les références spatiales de la couches
+#     return inp_lyr.GetExtent()
 
-# Donne la référence spatiale de référence
-def getproj(input):
-    # #shapefile with the from projection
-    driver = ogr.GetDriverByName(typefile)
-    dataSource = driver.Open(input, 0)
-    if layer == "":
-        inp_lyr = dataSource.GetLayer()
-    else:
-        inp_lyr = dataSource.GetLayer(layer)
-    # inp_lyr = openVectorFile(input, typefile, layer)
-    output = input
-    #set spatial reference and transformation
-    sourceprj = inp_lyr.GetSpatialRef()
-    return sourceprj
+# # Donne la référence spatiale de référence
+# def getproj(input):
+#     # #shapefile with the from projection
+#     driver = ogr.GetDriverByName(typefile)
+#     dataSource = driver.Open(input, 0)
+#     if layer == "":
+#         inp_lyr = dataSource.GetLayer()
+#     else:
+#         inp_lyr = dataSource.GetLayer(layer)
+#     # inp_lyr = openVectorFile(input, typefile, layer)
+#     output = input
+#     #set spatial reference and transformation
+#     sourceprj = inp_lyr.GetSpatialRef()
+#     return sourceprj
 
 # Reprojection des couches à utiliser
 def reprojection_Layer(input, typefile, layer=""):

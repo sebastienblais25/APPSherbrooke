@@ -1,11 +1,6 @@
-import numpy
-import os
 import Geoprocessing as geo
 from AnalyseMultiCritere import AnalyseMultiCritere
-from Layer import layer
-from read_csv import readCSV
 import pathlib
-import shutil
 import time
 
 

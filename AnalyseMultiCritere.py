@@ -26,12 +26,12 @@ class AnalyseMultiCritere:
     def fillFactor(self):
         print('Peuplement des facteurs......')
         test = readCSV(os.path.join(path,'source'),50)
-
-        self.envList = test.read_factor_layer()
-        # self.envList = biglist[0]
-        # self.physList = biglist[1]
-        # self.ecoList = biglist[2]
-        # self.socialList = biglist[3]
+        biglist = []
+        biglist = test.read_factor_layer()
+        self.envList = biglist[0]
+        self.physList = biglist[1]
+        self.ecoList = biglist[2]
+        self.socialList = biglist[3]
         print('Peuplement des facteurs...... terminé')
     
     # Remplissage de la liste de critere qui est dans le csv. 

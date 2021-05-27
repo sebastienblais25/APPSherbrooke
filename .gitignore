@@ -1,5 +1,6 @@
 .vscode
 buffer
+APP_data
 raster
 finalProduct
 reproject

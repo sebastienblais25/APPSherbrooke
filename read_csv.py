@@ -40,7 +40,11 @@ class readCSV:
 
     # Lecture du CSV pour ajouter les couches de facteur en faisant la rasterize plus proximity si necessaire
     def read_factor_layer(self):
+        bigList = []
         layerlistEnv = []
+        layerlistPhys = []
+        layerlistEco = []
+        layerlistSoc = []
         with open(os.path.join(self.path,'source2.csv')) as csvfile:
             layerReader = csv.reader(csvfile)
             for idx,i in enumerate(layerReader):
@@ -68,12 +72,17 @@ class readCSV:
                     if 'proximity' in i[6]:
                         addLayer.setProximityLayer()
                     # Ajout à la liste
-                    # if i[0] == 'Environnment'
-                    layerlistEnv.append(addLayer)
-                    # elif i[0] == 'Physique':
-                    #     layerlistPhys.append(addLayer)
-        # biglist=[]
-        # biglist.append(layerlistEnv)
-        # biglist.append(layerlistPhys)
-        return layerlistEnv
+                    if i[0] == 'Environnment':
+                        layerlistEnv.append(addLayer)
+                    elif i[0] == 'Physique':
+                        layerlistPhys.append(addLayer)
+                    elif i[0] == 'Social':
+                        layerlistSoc.append(addLayer)
+                    elif i[0] == 'Economique':
+                        layerlistEco.append(addLayer)
+        bigList.append(layerlistEnv)
+        bigList.append(layerlistPhys)
+        bigList.append(layerlistSoc)
+        bigList.append(layerlistPhys)
+        return bigList
 
