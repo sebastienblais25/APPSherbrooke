@@ -308,8 +308,8 @@ def raster_Calculator_factor(list_input, output):
     driver = gdal.GetDriverByName('GTiff')
     list_array = []
     for i in list_input:
-        file = gdal.Open(i.rasPath)
-        band = file.GetRasterBand(1)
+        file1 = gdal.Open(i.rasPath)
+        band = file1.GetRasterBand(1)
         list_array.append(band.ReadAsArray())
 
     for idx, i in enumerate(list_array):
@@ -319,13 +319,13 @@ def raster_Calculator_factor(list_input, output):
             calc += (i * float(list_input[idx].weight))
 
     # create new file
-    file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
+    file2 = driver.Create(output, file1.RasterXSize , file1.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
     file2.GetRasterBand(1).WriteArray(calc)
     file2.GetRasterBand(1).SetNoDataValue(0)
 
     # spatial ref system
-    proj = file.GetProjection()
-    georef = file.GetGeoTransform()
+    proj = file1.GetProjection()
+    georef = file1.GetGeoTransform()
     file2.SetProjection(proj)
     file2.SetGeoTransform(georef)
     file2.FlushCache()

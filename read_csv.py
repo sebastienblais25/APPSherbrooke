@@ -72,7 +72,7 @@ class readCSV:
                     if 'proximity' in i[6]:
                         addLayer.setProximityLayer()
                     # Ajout à la liste
-                    if i[0] == 'Environnment':
+                    if i[0] == 'Environnement':
                         layerlistEnv.append(addLayer)
                     elif i[0] == 'Physique':
                         layerlistPhys.append(addLayer)
