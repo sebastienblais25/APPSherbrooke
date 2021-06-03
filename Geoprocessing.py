@@ -196,8 +196,9 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", burnva
 
     # Rasterize
     if field_name:
+        print(field_name)
         out_lyr.SetNoDataValue(NoData_value)
-        inp_lyr.SetAttributeFilter(field_name)
+        inp_lyr.SetAttributeFilter(str(field_name))
         gdal.RasterizeLayer(out_source, [1], inp_lyr, burn_values=[1])
     elif burnvalue:
         out_lyr.SetNoDataValue(-6999)
@@ -251,7 +252,10 @@ def Reclassify_Raster(input,output, maskin,table):
                 else:
                     lista[i,j] = 0
             else:
-                lista[i,j] = -1
+                if listMask[i,j] == 0:
+                    lista[i,j] = -1
+                else:
+                    lista[i,j] = 0
 
     # Création d'un nouveau fichier pour la nouvelle reclassification
     file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
@@ -378,9 +382,9 @@ def calculate_slope(DEM):
 # https://gdal.org/python/
 
 # Field Calculator
-
+fieldquery = "TYPEZONE = '2'"
 # Exemple hos to run the function
 # Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
-# Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
-# reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
+Feature_to_Raster(r'D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','rip' + ".tiff"),50,'GOcite_nov2020 ZoneDevUrbainSchema',False, fieldquery)
+# reprojection_Layer(r'D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 ZoneDevUrbainSchema')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')

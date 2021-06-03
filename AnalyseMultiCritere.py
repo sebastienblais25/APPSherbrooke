@@ -1,10 +1,8 @@
-import numpy
 import os
 import Geoprocessing as geo
 from Layer import layer
 from read_csv import readCSV
 import pathlib
-import shutil
 
 path = pathlib.Path().absolute()
 class AnalyseMultiCritere:
@@ -30,8 +28,8 @@ class AnalyseMultiCritere:
         biglist = test.read_factor_layer()
         self.envList = biglist[0]
         self.physList = biglist[1]
-        self.ecoList = biglist[2]
-        self.socialList = biglist[3]
+        self.socialList = biglist[2]
+        self.ecoList = biglist[3]
         print('Peuplement des facteurs...... terminé')
     
     # Remplissage de la liste de critere qui est dans le csv. 
@@ -76,11 +74,11 @@ class AnalyseMultiCritere:
         self.reclassifyFactor(self.envList)
         self.calculateRaster(self.envList,'enviro')
         # Économique
-        # self.reclassifyFactor(self.ecoList)
-        # self.calculateRaster(self.envList,'econo')
+        self.reclassifyFactor(self.ecoList)
+        self.calculateRaster(self.ecoList,'econo')
         # Social
-        # self.reclassifyFactor(self.ecoList)
-        # self.calculateRaster(self.envList,'econo')
+        self.reclassifyFactor(self.socialList)
+        self.calculateRaster(self.socialList,'socio')
         # Physique
         # self.reclassifyFactor(self.ecoList)
         # self.calculateRaster(self.envList,'econo')

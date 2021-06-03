@@ -83,6 +83,6 @@ class readCSV:
         bigList.append(layerlistEnv)
         bigList.append(layerlistPhys)
         bigList.append(layerlistSoc)
-        bigList.append(layerlistPhys)
+        bigList.append(layerlistEco)
         return bigList
 
