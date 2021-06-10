@@ -50,20 +50,24 @@ class AnalyseMultiCritere:
 
         print('Peuplement des critères...... terminé')
 
-
+    def useRefProj_Extent(self):
+        geo.setUpDirectory()
     # Reporject all the layer for the analysis
     def reprojectLayer(self):
         print('Reprojection des couches.........')
-        for i in self.critereList:
-            i.reprojectLayer()
-        for i in self.ecoList:
-            i.reprojectLayer()
-        for i in self.envList:
-            i.reprojectLayer()
-        for i in self.physList:
-            i.reprojectLayer()
-        for i in self.socialList:
-            i.reprojectLayer()
+        try:
+            for i in self.critereList:
+                i.reprojectLayer()
+            for i in self.ecoList:
+                i.reprojectLayer()
+            for i in self.envList:
+                i.reprojectLayer()
+            for i in self.physList:
+                i.reprojectLayer()
+            for i in self.socialList:
+                i.reprojectLayer()
+        except:
+            print('rip reprojection')
         print('Reprojection des couches .........Terminé')
 
     # Reporject all the layer for the analysis

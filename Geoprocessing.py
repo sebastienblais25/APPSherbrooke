@@ -548,6 +548,11 @@ def calculate_slope(DEM):
 
 # Degrader et reprojeter un Tiff avec gdal.warp 
 # https://gdal.org/python/
+def reprojectRaster(infile, outfile, epsg):
+    ds = gdal.Warp(outfile, infile, dstSRS=epsg,
+                outputType=gdal.GDT_Float32)
+    ds = None
+    return outfile
 
 # Field Calculator
 
@@ -556,3 +561,4 @@ def calculate_slope(DEM):
 # Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
 # reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')
+reprojectRaster(r'D:\dumping_codes\APPSherbrooke\TestRose\enviro.tiff',r'D:\dumping_codes\APPSherbrooke\TestRose\fuck.tiff','EPSG:32187')
