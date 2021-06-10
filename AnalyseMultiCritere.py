@@ -1,10 +1,8 @@
-import numpy
 import os
 import Geoprocessing as geo
 from Layer import layer
 from read_csv import readCSV
 import pathlib
-import shutil
 
 path = pathlib.Path().absolute()
 class AnalyseMultiCritere:
@@ -26,7 +24,7 @@ class AnalyseMultiCritere:
     def fillFactor(self):
         print('Peuplement des facteurs......')
         try:
-            test = readCSV(os.path.join(path,'source'),50)
+            test = readCSV(os.path.join(path,'source'),10)
             biglist = []
             biglist = test.read_factor_layer()
             self.envList = biglist[0]
@@ -44,7 +42,7 @@ class AnalyseMultiCritere:
     def fillCriteria(self):
         print('Peuplement des critères......')
         try:
-            test = readCSV(os.path.join(path,'source'),50)
+            test = readCSV(os.path.join(path,'source'),10)
             self.critereList = test.read_criteria_layer()
         except:
             print('Peuplement des critères échoués')
@@ -53,6 +51,55 @@ class AnalyseMultiCritere:
         print('Peuplement des critères...... terminé')
 
 
+    # Reporject all the layer for the analysis
+    def reprojectLayer(self):
+        print('Reprojection des couches.........')
+        for i in self.critereList:
+            i.reprojectLayer()
+        for i in self.ecoList:
+            i.reprojectLayer()
+        for i in self.envList:
+            i.reprojectLayer()
+        for i in self.physList:
+            i.reprojectLayer()
+        for i in self.socialList:
+            i.reprojectLayer()
+        print('Reprojection des couches .........Terminé')
+
+    # Reporject all the layer for the analysis
+    def rasterizeLayer(self):
+        print('Rasterization des couches..........')
+        for i in self.critereList:
+            i.setRasterLayer()
+        for i in self.ecoList:
+            i.setRasterLayer()
+        for i in self.envList:
+            i.setRasterLayer()
+        for i in self.physList:
+            i.setRasterLayer()
+        for i in self.socialList:
+            i.setRasterLayer()
+        print('Rasterization des couches..........Terminé')
+
+    def proximityLayers(self):
+        print('Proximty process de certaines couches ...........')
+        for i in self.ecoList:
+            if i.proximity == True:
+                print('Use Proximity')
+                i.setProximityLayer()
+        for i in self.envList:
+            if i.proximity == True:
+                print('Use Proximity')
+                i.setProximityLayer()
+        for i in self.physList:
+            if i.proximity == True:
+                print('Use Proximity')
+                i.setProximityLayer()
+        for i in self.socialList:
+            if i.proximity == True:
+                print('Use Proximity')
+                i.setProximityLayer()
+        print('Proximty process de certaines couches ...........Terminé')
     # Réalisation d'un raster calculator pour toutes les couches de critère dans la liste
     # pour donner un masque final des critères.
     def calculateCriteria(self):
@@ -95,21 +142,28 @@ class AnalyseMultiCritere:
         print("Commencement de l'analyse multicritère")
         # Portion pour les opérations sur les critères
         self.fillCriteria()
-        self.calculateCriteria()
         # Portion pour les opérations sur les facteurs
         self.fillFactor()
+        # reproject
+        self.reprojectLayer()
+        #rasterize
+        self.rasterizeLayer()
+        # Proximity
+        self.proximityLayers()
+        # Create constraint mask
+        self.calculateCriteria()
         # Environnement
         self.reclassifyFactor(self.envList)
         self.calculateRaster(self.envList,'enviro')
         # Économique
-        # self.reclassifyFactor(self.ecoList)
-        # self.calculateRaster(self.envList,'econo')
+        self.reclassifyFactor(self.ecoList)
+        self.calculateRaster(self.ecoList,'econo')
         # Social
-        # self.reclassifyFactor(self.ecoList)
-        # self.calculateRaster(self.envList,'econo')
+        self.reclassifyFactor(self.socialList)
+        self.calculateRaster(self.socialList,'socio')
         # Physique
-        # self.reclassifyFactor(self.ecoList)
-        # self.calculateRaster(self.envList,'econo')
+        # self.reclassifyFactor(self.physList)
+        # self.calculateRaster(self.physList,'phys')
         print("Phase 1 ........ terminé")
         # Sélection des sites propices Rose
         print("Analyse multicritère........ terminé")

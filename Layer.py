@@ -22,6 +22,12 @@ class layer:
         self.burnValue = burnValue
         self.cellsize = cellsize
         self.table = table
+        self.proximity = False
+        self.buffer = False
+
+    # set the proximity to true
+    def proximityProcess(self):
+        self.proximity = True
 
     # Reporjection des couches si besoin pour le projet
     def reprojectLayer(self):
