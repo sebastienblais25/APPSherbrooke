@@ -71,4 +71,3 @@ class readCSV:
         bigList.append(layerlistSoc)
         bigList.append(layerlistEco)
         return bigList
-

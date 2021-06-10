@@ -38,6 +38,8 @@ class layer:
             self.path = geo.reprojection_Layer(self.path,'OpenFileGDB',self.layerName)
         elif extension == "gpkg":
             self.path = geo.reprojection_Layer(self.path,'GPKG',self.layerName)
+        elif extension == "tif":
+            self.path = geo.reprojectRaster(self.path,os.path.join(path,'reproject',self.name+".tiff"),'EPSG:32187')
 
     # Rasterize les critère dans une grandeur de cellule voulu
     def setRasterLayer(self):
@@ -52,19 +54,17 @@ class layer:
             self.rasPath = geo.Feature_to_Raster(self.path,'GPKG',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
-            shutil.copyfile(self.path, os.path.join(path,'raster'))
-            self.rasPath = os.path.join(path,'raster',self.name + ".tiff")
+            shutil.copyfile(self.path, os.path.join(path,'raster',self.name+ ".tif"))
+            self.rasPath = os.path.join(path,'raster',self.name + ".tif")
     
     # Rasterize les critère dans une grandeur de cellule voulu
     def setProximityLayer(self):
-        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(path,'proximity',self.name + ".tiff"),self.cellsize)
+        self.rasPath = geo.Proximity_Raster(self.rasPath,os.path.join(path,'proximity',self.name + ".tiff"))
         # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
     
     # Mets un buffer sur couches qui n'est pas un polygone
     def bufferLayer(self):
         self.path = geo.bufferLineAndPoints(self.path,os.path.join(r'D:\dumping_codes\APPSherbrooke\buffer',self.name+'.shp'),1,self.layerName)
     
-    # Reclassify the raster layer with 
-
-
+    # Reclassify the raster layer with
     # Prétraitement filtre

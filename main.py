@@ -16,8 +16,8 @@ geo.setUpDirectory(path)
 # Set extent and projection
 
 # Faire l'analyse mutlicritere
-analyse = AnalyseMultiCritere('hello', 'hello')
+# parametre : 1-Projection, 2-Extent, 3-cellsize, 4-Environnement Pondération, 5-Économique Pondération, 6-Sociaux Pondération, 7-Physqiue Pondération
+analyse = AnalyseMultiCritere('hello', 'hello',50)
 analyse.runAnalysis()
 
-print("--- %s seconds ---" % (time.time() - start_time))
-
+print("--- %s minutes ---" % ((time.time() - start_time)/60))

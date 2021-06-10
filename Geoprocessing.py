@@ -454,6 +454,7 @@ def raster_Calculator_factor(list_input, output):
 
     # create new file
     try:
+        print(output)
         file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
         file2.GetRasterBand(1).WriteArray(calc)
         file2.GetRasterBand(1).SetNoDataValue(0)
@@ -475,7 +476,7 @@ def raster_Calculator_factor(list_input, output):
     return output
 
 # Calcule la proximité du raster à partir des rasters créer du feature_to_raster
-def Proximity_Raster(input, output, cellsize, layer="", field_name=False, NoData_value=0):
+def Proximity_Raster(input, output):
     """
     Converts a shapefile into a raster
     """
@@ -550,15 +551,15 @@ def calculate_slope(DEM):
 # https://gdal.org/python/
 def reprojectRaster(infile, outfile, epsg):
     ds = gdal.Warp(outfile, infile, dstSRS=epsg,
-                outputType=gdal.GDT_Float32)
+                outputType=gdal.GDT_Float32, xRes=50, yRes=50)
     ds = None
     return outfile
 
 # Field Calculator
 
-# Exemple hos to run the function
+# Exemple how to run the function
 # Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
 # Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
 # reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')
-reprojectRaster(r'D:\dumping_codes\APPSherbrooke\TestRose\enviro.tiff',r'D:\dumping_codes\APPSherbrooke\TestRose\fuck.tiff','EPSG:32187')
+# reprojectRaster(r'D:\dumping_codes\APPSherbrooke\TestRose\enviro.tiff',r'D:\dumping_codes\APPSherbrooke\TestRose\fuck.tiff','EPSG:32187')

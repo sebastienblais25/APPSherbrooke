@@ -15,3 +15,6 @@ Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.15,zone
 Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\pisteCyclable.shp,0.25,velo,,,proximity,100:100;300:80;500:30;1000000000000000000000:10,
 Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\zonage_industriel.shp,0.1,indu,,,proximity,0:0;100:100;600:50;1200000000000000:25,
 Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\ligneBus.shp,0.1,bus,,,proximity,100:100;500:30;100000000000000000000000:10,
+Physique,D:\dumping_codes\APPSherbrooke\APP_data\physique_donnees\apres_pretraitements\slope_10m.tif,0.4,slope,,,,4:100;8:50;12:10;300:1,
+Physique,D:\dumping_codes\APPSherbrooke\APP_data\physique_donnees\apres_pretraitements\contraintes_ecofor2.shp,0.2,sol_cap,,capacite,,0:0;1:100;2:50;3:10,
+Physique,D:\dumping_codes\APPSherbrooke\APP_data\physique_donnees\apres_pretraitements\contraintes_ecofor2.shp,0.4,sol_epa,,epaisseur,,0:0;1:100;2:50;3:10,

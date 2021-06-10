@@ -8,7 +8,12 @@ path = pathlib.Path().absolute()
 class AnalyseMultiCritere:
     # Constructeur de l'objet d'analyse multicritere qui requiert seulement 
     # une projection de référence et un extent de référence
-    def __init__(self, ref_proj, ref_extent):
+    def __init__(self, ref_proj, ref_extent,cellsize):
+        self.cellsize = cellsize
+        self.envPond = 0.25
+        self.socPond = 0.25
+        self.ecoPond = 0.25
+        self.physPond = 0.25
         self.ref_proj = ref_proj
         self.ref_extent = ref_extent
         self.envList = []
@@ -24,7 +29,7 @@ class AnalyseMultiCritere:
     def fillFactor(self):
         print('Peuplement des facteurs......')
         try:
-            test = readCSV(os.path.join(path,'source'),10)
+            test = readCSV(os.path.join(path,'source'),self.cellsize)
             biglist = []
             biglist = test.read_factor_layer()
             self.envList = biglist[0]
@@ -42,7 +47,7 @@ class AnalyseMultiCritere:
     def fillCriteria(self):
         print('Peuplement des critères......')
         try:
-            test = readCSV(os.path.join(path,'source'),10)
+            test = readCSV(os.path.join(path,'source'),self.cellsize)
             self.critereList = test.read_criteria_layer()
         except:
             print('Peuplement des critères échoués')
@@ -140,9 +145,11 @@ class AnalyseMultiCritere:
             raise
 
         print('Calcul............ Terminé')
+        return final_output
 
     # Réalisation de toutes les opération pour une analyse mutlicritere complete
     def runAnalysis(self):
+        layerList = []
         print("Commencement de l'analyse multicritère")
         # Portion pour les opérations sur les critères
         self.fillCriteria()
@@ -157,17 +164,36 @@ class AnalyseMultiCritere:
         # Create constraint mask
         self.calculateCriteria()
         # Environnement
-        self.reclassifyFactor(self.envList)
-        self.calculateRaster(self.envList,'enviro')
+        if len(self.envList) != 0:
+            self.reclassifyFactor(self.envList)
+            env = self.calculateRaster(self.envList,'enviro')
+            envlayer = layer('enviro',self.envPond,env,'',self.cellsize)
+            envlayer.rasPath = env
+            layerList.append(envlayer)
+            print(env)
+        else:
+            print("Il a aucune couche pour l'axe environnement")
         # Économique
-        self.reclassifyFactor(self.ecoList)
-        self.calculateRaster(self.ecoList,'econo')
+        if len(self.ecoList) != 0:
+            self.reclassifyFactor(self.ecoList)
+            eco = self.calculateRaster(self.ecoList,'econo')
+            print(eco)
+        else:
+            print("Il a aucune couche pour l'axe économique")
         # Social
-        self.reclassifyFactor(self.socialList)
-        self.calculateRaster(self.socialList,'socio')
+        if len(self.socialList) != 0:
+            self.reclassifyFactor(self.socialList)
+            socio = self.calculateRaster(self.socialList,'socio')
+            print(socio)
+        else:
+            print("Il a aucune couche pour l'axe social")
         # Physique
-        # self.reclassifyFactor(self.physList)
-        # self.calculateRaster(self.physList,'phys')
+        if len(self.physList) != 0:
+            self.reclassifyFactor(self.physList)
+            phys = self.calculateRaster(self.physList,'phys')
+            print(phys)
+        else:
+            print("Il a aucune couche pour l'axe physique")
         print("Phase 1 ........ terminé")
         # Sélection des sites propices Rose
         print("Analyse multicritère........ terminé")
