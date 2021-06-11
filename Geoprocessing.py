@@ -35,6 +35,14 @@ def setUpDirectory(path):
     except:
         print('fichier raster est ouvert')
         raise
+    # Create folder for the intermediateProduct
+    try:
+        if os.path.exists(os.path.join(path,'intermediateProduct')):
+            shutil.rmtree(os.path.join(path,'intermediateProduct'))
+        os.mkdir(os.path.join(path,'intermediateProduct'))
+    except:
+        print('Fichier intermediateProduct est ouvert')
+        raise
     # Create folder for the finalProduct
     try:
         if os.path.exists(os.path.join(path,'finalProduct')):
@@ -253,7 +261,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", burnva
         if os.path.exists(output_tiff):
             out_driver.Delete(output_tiff)
         out_source = out_driver.Create(output_tiff, x_ncells, y_ncells,
-                                    1, gdal.GDT_Int16)
+                                    1, gdal.GDT_Float64)
     except:
         print('Échec de la création du fichier pour le tiff')
         raise
@@ -348,7 +356,7 @@ def Reclassify_Raster(input,output, maskin,table):
 
     # Création d'un nouveau fichier pour la nouvelle reclassification
     try:
-        file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
+        file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float64'))
     except:
         print('Création du nouveau fichier pour la reclassification impossible')
         raise
@@ -455,7 +463,7 @@ def raster_Calculator_factor(list_input, output):
     # create new file
     try:
         print(output)
-        file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
+        file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float64'))
         file2.GetRasterBand(1).WriteArray(calc)
         file2.GetRasterBand(1).SetNoDataValue(0)
     except:
@@ -497,7 +505,7 @@ def Proximity_Raster(input, output):
 
     # Création d'un nouveau fichier pour la nouvelle reclassification
     try:
-        file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float32'))
+        file2 = driver.Create(output, file.RasterXSize , file.RasterYSize , 1, gdal.GetDataTypeByName('Float64'))
     except:
         print('Échec de la création du nouveau fichier pour la nouvelle reclassification')
         raise
@@ -549,10 +557,21 @@ def calculate_slope(DEM):
 
 # Degrader et reprojeter un Tiff avec gdal.warp 
 # https://gdal.org/python/
-def reprojectRaster(infile, outfile, epsg):
+def reprojectRaster(infile, outfile, epsg, cellsize):
     ds = gdal.Warp(outfile, infile, dstSRS=epsg,
-                outputType=gdal.GDT_Float32, xRes=50, yRes=50)
+                outputType=gdal.GDT_Float64, xRes=cellsize, yRes=cellsize)
     ds = None
+    return outfile
+
+# Crop a raster with a shapefile same as clip
+def cropRaster(infile, cropfile, outfile):
+    OutTile = gdal.Warp(outfile, 
+                    infile,  
+                    cutlineDSName=cropfile,
+                    cropToCutline=True,
+                    dstNodata = 0)
+
+    OutTile = None
     return outfile
 
 # Field Calculator
@@ -563,3 +582,4 @@ def reprojectRaster(infile, outfile, epsg):
 # reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')
 # reprojectRaster(r'D:\dumping_codes\APPSherbrooke\TestRose\enviro.tiff',r'D:\dumping_codes\APPSherbrooke\TestRose\fuck.tiff','EPSG:32187')
+# cropRaster(r'D:\dumping_codes\APPSherbrooke\finalProduct\final.tiff',r'D:\dumping_codes\APPSherbrooke\APP_data\municipSherb.shp',r'D:\dumping_codes\APPSherbrooke\finalProduct\finalCrop.tiff')

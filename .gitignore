@@ -2,6 +2,7 @@
 buffer
 APP_data
 raster
+intermediateProduct
 finalProduct
 reproject
 proximity

@@ -4,17 +4,16 @@ Environnement,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.
 Environnement,D:\dumping_codes\APPSherbrooke\APP_data\Output_pretraitement\Hydrologie\hydrologie_merge.shp,0.15,hydro_prox,,,proximity,100:10;300:50;800:80;10000000:100,
 Environnement,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.15,mh_prox,mh_canards_illimite,,proximity,100:10;300:50;800:80;10000000:100,"""protect"" = '0'"
 Environnement,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.3,mh,mh_canards_illimite,,,0:100;1:10;5:5;6:6,"""protect"" = '0'"
-Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\autoroute1m.shp,0.3,DistanceAutoroute,Autoroute,,proximity,1000:100;2500:80;5000:60;9000:40;99999999:20,
-Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\valeur.gpkg,0.4,Superficie,Valeur,SUPERFICIE,,5000:20;100000:40;400000:60;1000000:80;999999999:100,
-Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\valeur.gpkg,0.1,Valeur,Valeur,PricePerAr,,150000:100;300000:80;500000:60;1000000:40;999999999:20,
-Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\valeur.gpkg,0.1,ValeurSurface,Valeur,Area_value,,7:100;34:80;65:60;102:40;10000000000000000:20,
-Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\valeur.gpkg,0.1,batiment,Valeur,valbat,,0:100;999999999999999:10;5:5;6:6,
-Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.15,zonedev1,GOcite_nov2020 ZoneDevUrbainSchema,,proximity,0:0;100:100;300:75;120000000000000:25,"""TYPEZONE"" = '1'"
-Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.15,zonedev2,GOcite_nov2020 ZoneDevUrbainSchema,,proximity,0:0;100:100;300:75;120000000000000:26,"""TYPEZONE"" = '2'"
-Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.15,zonedev3,GOcite_nov2020 ZoneDevUrbainSchema,,proximity,0:0;100:100;300:75;120000000000000:27,"""TYPEZONE ""= '3'"
-Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\pisteCyclable.shp,0.25,velo,,,proximity,100:100;300:80;500:30;1000000000000000000000:10,
-Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\zonage_industriel.shp,0.1,indu,,,proximity,0:0;100:100;600:50;1200000000000000:25,
-Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\ligneBus.shp,0.1,bus,,,proximity,100:100;500:30;100000000000000000000000:10,
+Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\autoroute10m.shp,0.3,DistanceAutoroute,Autoroute,,proximity,1000:100;2500:80;5000:60;9000:40;99999999:20,
+Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\valeur.gpkg,0.4,Superficie,Valeur,area,,5000:20;100000:40;400000:60;1000000:80;999999999:100,
+Economique,D:\dumping_codes\APPSherbrooke\APP_data\Economique\valeur.gpkg,0.3,ValeurSurface,Valeur,PricePerAr,,7:100;34:80;65:60;102:40;10000000000000000:20,
+Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.08,zonedev1,GOcite_nov2020 ZoneDevUrbainSchema,,proximity,0:0;100:100;300:75;120000000000000:25,"""TYPEZONE"" = '1'"
+Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.08,zonedev2,GOcite_nov2020 ZoneDevUrbainSchema,,proximity,0:0;100:100;300:75;120000000000000:26,"""TYPEZONE"" = '2'"
+Social,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,0.04,zonedev3,GOcite_nov2020 ZoneDevUrbainSchema,,proximity,0:0;100:100;300:75;120000000000000:27,"""TYPEZONE ""= '3'"
+Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\pisteCyclable.shp,0.1,velo,,,proximity,100:100;300:80;500:30;1000000000000000000000:10,
+Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\zonage_industriel.shp,0.35,indu,,,proximity,0:0;100:100;600:50;1200000000000000:25,
+Social,D:\dumping_codes\APPSherbrooke\APP_data\test\zonageMunicipal.shp,0.2,zonage,,,,0:100;1:10,GROUPEUSAG in ('H')
+Social,D:\dumping_codes\APPSherbrooke\APP_data\Social\ligneBus.shp,0.15,bus,,,proximity,100:100;500:30;100000000000000000000000:10,
 Physique,D:\dumping_codes\APPSherbrooke\APP_data\physique_donnees\apres_pretraitements\slope_10m.tif,0.4,slope,,,,4:100;8:50;12:10;300:1,
 Physique,D:\dumping_codes\APPSherbrooke\APP_data\physique_donnees\apres_pretraitements\contraintes_ecofor2.shp,0.2,sol_cap,,capacite,,0:0;1:100;2:50;3:10,
 Physique,D:\dumping_codes\APPSherbrooke\APP_data\physique_donnees\apres_pretraitements\contraintes_ecofor2.shp,0.4,sol_epa,,epaisseur,,0:0;1:100;2:50;3:10,
