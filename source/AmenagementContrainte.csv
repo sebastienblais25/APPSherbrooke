@@ -1,0 +1,6 @@
+Axe,path,weight,name,name_layer,colonne,pretraitement
+Environnement,D:\dumping_codes\Donnee\Milieux_Humide\Milieux_Humide_poly.shp,1,mh,,,
+Environnement,D:\dumping_codes\Donnee\HydroBR\hydroS_BR.shp,1,hydro_s,,,
+Environnement,D:\dumping_codes\Donnee\HydroBR\hydroLine_BR.shp,1,Riviere,,,
+Environnement,D:\dumping_codes\Donnee\Route\routeBuffered_clip_fix.shp,1,Route,,,
+Social,D:\dumping_codes\Donnee\utilisation_territoire_2018\contraintesMH_AQUA_AGRICOLE_fix.shp,1,no_go,,,

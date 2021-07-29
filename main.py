@@ -25,7 +25,11 @@ geo.setUpDirectory(path)
 #             6-Sociaux Pondération, 
 #             7-Physique Pondération, 
 #             8-référence pour le crop
-analyse = AnalyseMultiCritere('hello', 'hello', 10, 0.33, 0.25, 0.27, 0.15, os.path.join(path,'APP_data','municipSherb.shp'))
+proj = geo.getproj(r'D:\dumping_codes\APPSherbrooke\Ref\mnt_10m.tif')
+# print(proj.GetAttrValue('AUTHORITY', 1))
+
+extent = geo.getExtent(r'D:\dumping_codes\APPSherbrooke\Ref\mnt_10m.tif')
+analyse = AnalyseMultiCritere(proj, extent, 10, 0.33, 0.32, 0.20, 0.15, os.path.join(path,'APP_data','municipSherb.shp'))
 analyse.runAnalysis()
 
 print("--- %s minutes ---" % ((time.time() - start_time)/60))

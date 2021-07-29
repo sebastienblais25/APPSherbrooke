@@ -56,36 +56,48 @@ class AnalyseMultiCritere:
     # Set the Extent and projection for all the project
     def useRefProj_Extent(self):
         geo.setUpDirectory()
-    # Reporject all the layer for the analysis
+    # Reproject all the layer for the analysis
     def reprojectLayer(self):
         print('Reprojection des couches.........')
-        try:
-            for i in self.critereList:
-                i.reprojectLayer()
-            for i in self.ecoList:
-                i.reprojectLayer()
-            for i in self.envList:
-                i.reprojectLayer()
-            for i in self.physList:
-                i.reprojectLayer()
-            for i in self.socialList:
-                i.reprojectLayer()
-        except:
-            print('rip reprojection')
+        for i in self.critereList:
+            try:
+                i.reprojectLayer(self.ref_proj, self.ref_extent)
+            except:
+                print(i.name + ' a causé une erreur')
+        for i in self.ecoList:
+            try:
+                i.reprojectLayer(self.ref_proj, self.ref_extent)
+            except:
+                print(i.name + ' a causé une erreur')
+        for i in self.envList:
+            try:
+                i.reprojectLayer(self.ref_proj, self.ref_extent)
+            except:
+                print(i.name + ' a causé une erreur')
+        for i in self.physList:
+            try:
+                i.reprojectLayer(self.ref_proj, self.ref_extent)
+            except:
+                print(i.name + ' a causé une erreur')
+        for i in self.socialList:
+            try:
+                i.reprojectLayer(self.ref_proj, self.ref_extent)
+            except:
+                print(i.name + ' a causé une erreur')
         print('Reprojection des couches .........Terminé')
-    # Reporject all the layer for the analysis
+    # Rasterize all the layer for the analysis
     def rasterizeLayer(self):
         print('Rasterization des couches..........')
         for i in self.critereList:
-            i.setRasterLayer()
+            i.setRasterLayer(self.ref_extent)
         for i in self.ecoList:
-            i.setRasterLayer()
+            i.setRasterLayer(self.ref_extent)
         for i in self.envList:
-            i.setRasterLayer()
+            i.setRasterLayer(self.ref_extent)
         for i in self.physList:
-            i.setRasterLayer()
+            i.setRasterLayer(self.ref_extent)
         for i in self.socialList:
-            i.setRasterLayer()
+            i.setRasterLayer(self.ref_extent)
         print('Rasterization des couches..........Terminé')
     # do the proximity process for the layers who need it
     def proximityLayers(self):

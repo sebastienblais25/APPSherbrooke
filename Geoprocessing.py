@@ -1,14 +1,11 @@
-import numpy as np
 import os
-import shutil
 import pathlib
-from osgeo import ogr
-from osgeo import osr
-from osgeo import gdal
+import shutil
+import numpy as np
+import whitebox
+from osgeo import gdal, ogr, osr
 
 path = pathlib.Path().absolute()
-projection = osr.SpatialReference(wkt = r'PROJCS["NAD83 / MTM zone 7",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-70.5],PARAMETER["scale_factor",0.9999],PARAMETER["false_easting",304800],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["E(X)",EAST],AXIS["N(Y)",NORTH],AUTHORITY["EPSG","32187"]]')
-
 
 # Setup les dossiers pour que le programmes fonctionne comme il le faut
 def setUpDirectory(path):
@@ -117,44 +114,29 @@ def bufferLineAndPoints(inputfn, outputBufferfn, bufferDist,layername):
     return outputBufferfn
 
 # Donne l'extent de référence
-#def getExtent(input):
-    #try:
-        # Chercher le driver pour la lecture
-        #inp_driver = ogr.GetDriverByName(type_input)
-        # Lecture du fichier
-        #inp_source = inp_driver.Open(input, 0)
-        # Si un nom de couche n'est pas donner on va chercher la premiere couche sinon on prendre celle avec le nnom
-        #if layer == "":
-           # inp_lyr = inp_source.GetLayer()
-        #else:
-          #  inp_lyr = inp_source.GetLayer(layer)
-        # On va chercher les références spatiales de la couches
-    #except:
-        #raise ('Extent introuvable')
+def getExtent(input):
+    try:
+        ds = gdal.Open(input)
+        xmin, xpixel, _, ymax, _, ypixel = ds.GetGeoTransform()
+        width, height = ds.RasterXSize, ds.RasterYSize
+        xmax = xmin + width * xpixel
+        ymin = ymax + height * ypixel
+    except:
+        raise ('Extent introuvable')
 
-    #return inp_lyr.GetExtent()
+    return (xmin,xmax,ymin,ymax)
 
 # Donne la référence spatiale de référence
-#def getproj(input):
-    #try :
-        # #shapefile with the from projection
-       # driver = ogr.GetDriverByName(typefile)
-        #dataSource = driver.Open(input, 0)
-        #if layer == "":
-            #inp_lyr = dataSource.GetLayer()
-        #else:
-            #inp_lyr = dataSource.GetLayer(layer)
-        # inp_lyr = openVectorFile(input, typefile, layer)
-        #output = input
-        #set spatial reference and transformation
-        #sourceprj = inp_lyr.GetSpatialRef()
-   # except:
-        #raise ('Référence spatiale introuvable')
-
-    #return sourceprj
+def getproj(input):
+    try :
+        file = gdal.Open(input)
+        proj = osr.SpatialReference(wkt=file.GetProjection())
+    except:
+        raise ('Référence spatiale introuvable')
+    return proj
 
 # Reprojection des couches à utiliser
-def reprojection_Layer(input, typefile, layer=""):
+def reprojection_Layer(proj, input, typefile, layer=""):
 
     # read Layer
     try:
@@ -174,16 +156,16 @@ def reprojection_Layer(input, typefile, layer=""):
     try:
         sourceprj = inp_lyr.GetSpatialRef()
     # les path sont a changer sont hardcoder
-        if sourceprj != projection:
+        if sourceprj != proj:
             if layer == "":
                 output = os.path.join(path,"reproject", input.split("\\")[-1])
             else:
                 output = os.path.join(path,"reproject", layer + '.shp')
-            transform = osr.CoordinateTransformation(sourceprj, projection)
+            transform = osr.CoordinateTransformation(sourceprj, proj)
         
             to_fill = ogr.GetDriverByName("Esri Shapefile")
             ds = to_fill.CreateDataSource(output)
-            outlayer = ds.CreateLayer('', projection, ogr.wkbPolygon)
+            outlayer = ds.CreateLayer('', proj, ogr.wkbPolygon)
             #outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
             fields = [field.name for field in inp_lyr.schema]
             for i in fields:
@@ -221,7 +203,7 @@ def reprojection_Layer(input, typefile, layer=""):
     return output
 
 # Fonction pour effectuer un rasterize sur les fichiers vectorielle
-def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", burnvalue=False, field_name=False, NoData_value=0):
+def Feature_to_Raster(extentinp, input, type_input, output_tiff, cellsize, layer="", burnvalue=False, field_name=False, NoData_value=0):
     """
     Converts a shapefile into a raster
     """
@@ -248,7 +230,7 @@ def Feature_to_Raster(input, type_input, output_tiff, cellsize, layer="", burnva
     # On établi l'extent pour chaque raster dans le processus
     # print(inp_lyr.GetExtent())
     try:
-        x_min, x_max, y_min, y_max = (178635.17480000015, 202847.59949999955, 5018929.5001, 5043653.4749)
+        x_min, x_max, y_min, y_max = extentinp
         x_ncells = int((x_max - x_min) / cellsize)
         y_ncells = int((y_max - y_min) / cellsize)
     except:
@@ -323,33 +305,41 @@ def Reclassify_Raster(input,output, maskin,table):
 
     # reclassification
     try:
-        for j in  range(file.RasterXSize):
-            for i in  range(file.RasterYSize):
-                if lista[i,j] <= int(reclassif[0].split(':')[0]):
-                    if listMask[i,j] == 0:
-                        lista[i,j] = float(reclassif[0].split(':')[1])
+        if reclassif[0] != 'no':
+            for j in  range(file.RasterXSize):
+                for i in  range(file.RasterYSize):
+                    if lista[i,j] <= int(reclassif[0].split(':')[0]):
+                        if listMask[i,j] == 0:
+                            lista[i,j] = float(reclassif[0].split(':')[1])
+                        else:
+                            lista[i,j] = 0
+                    elif lista[i,j] <= int(reclassif[1].split(':')[0]):
+                        if listMask[i,j] == 0:
+                            lista[i,j] = float(reclassif[1].split(':')[1])
+                        else:
+                            lista[i,j] = 0
+                    elif lista[i,j] <= int(reclassif[2].split(':')[0]):
+                        if listMask[i,j] == 0:
+                            lista[i,j] = float(reclassif[2].split(':')[1])
+                        else:
+                            lista[i,j] = 0
+                    elif lista[i,j] <= int(reclassif[3].split(':')[0]):
+                        if listMask[i,j] == 0:
+                            lista[i,j] = float(reclassif[3].split(':')[1])
+                        else:
+                            lista[i,j] = 0
+                    elif lista[i,j] >= int(reclassif[4].split(':')[0]):
+                        if listMask[i,j] == 0:
+                            lista[i,j] = float(reclassif[4].split(':')[1])
+                        else:
+                            lista[i,j] = 0
                     else:
                         lista[i,j] = 0
-                elif lista[i,j] <= int(reclassif[1].split(':')[0]):
-                    if listMask[i,j] == 0:
-                        lista[i,j] = float(reclassif[1].split(':')[1])
-                    else:
-                        lista[i,j] = 0
-                elif lista[i,j] <= int(reclassif[2].split(':')[0]):
-                    if listMask[i,j] == 0:
-                        lista[i,j] = float(reclassif[2].split(':')[1])
-                    else:
-                        lista[i,j] = 0
-                elif lista[i,j] <= int(reclassif[3].split(':')[0]):
-                    if listMask[i,j] == 0:
-                        lista[i,j] = float(reclassif[3].split(':')[1])
-                    else:
-                        lista[i,j] = 0
-                else:
-                    if listMask[i, j] == 0:
-                        lista[i, j] = -1
-                    else:
-                        lista[i, j] = 0
+        else:
+            for j in  range(file.RasterXSize):
+                for i in  range(file.RasterYSize):
+                    if listMask[i,j] == 1 or listMask[i,j] < 0:
+                            lista[i,j] = 0
     except:
         print('Reclassification échoué')
         raise
@@ -557,9 +547,9 @@ def calculate_slope(DEM):
 
 # Degrader et reprojeter un Tiff avec gdal.warp 
 # https://gdal.org/python/
-def reprojectRaster(infile, outfile, epsg, cellsize):
+def reprojectRaster(infile, outfile, epsg, cellsize,extent):
     ds = gdal.Warp(outfile, infile, dstSRS=epsg,
-                outputType=gdal.GDT_Float64, xRes=cellsize, yRes=cellsize)
+                outputType=gdal.GDT_Float64, xRes=cellsize, yRes=cellsize,ts=extent)
     ds = None
     return outfile
 
@@ -574,12 +564,19 @@ def cropRaster(infile, cropfile, outfile):
     OutTile = None
     return outfile
 
-# Field Calculator
+# Majority filter
+def majorityfilter(input,output):
+    wbt = whitebox.WhiteboxTools()
+    #print(wbt.list_tools())
+    wbt.majority_filter(input,output,filterx=50, 
+    filtery=50)
+    #whitebox.majority_filter(input,output)
 
 # Exemple how to run the function
 # Proximity_Raster(r"D:\dumping_codes\APPSherbrooke\raster\PU.tiff",r"D:\dumping_codes\APPSherbrooke\raster\ProxPU.tiff",1)
 # Feature_to_Raster(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG',os.path.join(r'D:\dumping_codes\APPSherbrooke\raster','arbre' + ".tiff"),50,'foret_sherbrooke','age')
-# reprojection_Layer(r'D:\APP_data\parc_industrielAMC.gpkg','GPKG','GOcite_nov2020 Riviere')
+# reprojection_Layer(getproj(r'D:\dumping_codes\APPSherbrooke\Ref\DEMZone.tif'),r'D:\dumping_codes\Donnee\Route\routeBuffered_clip.shp','ESRI Shapefile')
 # bufferLineAndPoints(r'D:\APP_data\parc_industrielAMC.gpkg',r'D:\dumping_codes\APPSherbrooke\buffer\ruisseau.shp',1,'GOcite_nov2020 Ruisseau')
 # reprojectRaster(r'D:\dumping_codes\APPSherbrooke\TestRose\enviro.tiff',r'D:\dumping_codes\APPSherbrooke\TestRose\fuck.tiff','EPSG:32187')
 # cropRaster(r'D:\dumping_codes\APPSherbrooke\finalProduct\final.tiff',r'D:\dumping_codes\APPSherbrooke\APP_data\municipSherb.shp',r'D:\dumping_codes\APPSherbrooke\finalProduct\finalCrop.tiff')
+# majorityfilter(r'D:\dumping_codes\APPSherbrooke\finalProduct\sociocrop.tiff',r'D:\dumping_codes\APPSherbrooke\finalProduct\finalcropMajority.tiff')

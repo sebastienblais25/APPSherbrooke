@@ -10,3 +10,4 @@ Environnement,D:\dumping_codes\APPSherbrooke\APP_data\Output_pretraitement\inter
 Social,D:\dumping_codes\APPSherbrooke\APP_data\test\zonageMunicipal.shp,1,zonage_crit,,"GROUPEUSAG in ('P','I','A')",
 Environnement,D:\dumping_codes\APPSherbrooke\APP_data\parc_industrielAMC.gpkg,1,faune_crit,faune_reproj,LASTOBS like ('2015%') or LASTOBS like ('2016%') or LASTOBS like ('2017%') or LASTOBS like ('2018%') or LASTOBS like ('2019%') or LASTOBS like ('2020%') or LASTOBS like ('2021%'),
 Social,D:\dumping_codes\APPSherbrooke\APP_data\Economique\autoroute10m.shp,1,auto_crit,,,
+Social,D:\dumping_codes\APPSherbrooke\APP_data\aires_amenagees\aires_amenagees_contraite.shp,,,,,

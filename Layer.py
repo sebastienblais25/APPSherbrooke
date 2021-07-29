@@ -30,28 +30,28 @@ class layer:
         self.proximity = True
 
     # Reporjection des couches si besoin pour le projet
-    def reprojectLayer(self):
+    def reprojectLayer(self,proj,extent):
         extension = self.path.split('.')[1]
         if extension == 'shp':
-            self.path = geo.reprojection_Layer(self.path,'ESRI Shapefile')
+            self.path = geo.reprojection_Layer(proj,self.path,'ESRI Shapefile')
         elif extension == 'gdb':
-            self.path = geo.reprojection_Layer(self.path,'OpenFileGDB',self.layerName)
+            self.path = geo.reprojection_Layer(proj,self.path,'OpenFileGDB',self.layerName)
         elif extension == "gpkg":
-            self.path = geo.reprojection_Layer(self.path,'GPKG',self.layerName)
+            self.path = geo.reprojection_Layer(proj,self.path,'GPKG',self.layerName)
         elif extension == "tif":
-            self.path = geo.reprojectRaster(self.path,os.path.join(path,'reproject',self.name+".tiff"),'EPSG:32187',self.cellsize)
+            self.path = geo.reprojectRaster(self.path,os.path.join(path,'reproject',self.name+".tiff"),'EPSG:'+proj.GetAttrValue('AUTHORITY', 1),self.cellsize,extent)
 
     # Rasterize les critère dans une grandeur de cellule voulu
-    def setRasterLayer(self):
+    def setRasterLayer(self,extent):
         extension = self.path.split('.')[1]
         if extension == 'shp':
-            self.rasPath = geo.Feature_to_Raster(self.path,'ESRI Shapefile',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,'',self.burnValue,self.fieldName)
+            self.rasPath = geo.Feature_to_Raster(extent,self.path,'ESRI Shapefile',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,'',self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gdb':
-            self.rasPath = geo.Feature_to_Raster(self.path,'OpenFileGDB',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
+            self.rasPath = geo.Feature_to_Raster(extent,self.path,'OpenFileGDB',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         elif extension == 'gpkg':
-            self.rasPath = geo.Feature_to_Raster(self.path,'GPKG',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
+            self.rasPath = geo.Feature_to_Raster(extent,self.path,'GPKG',os.path.join(path,'raster',self.name + ".tiff"),self.cellsize,self.layerName,self.burnValue,self.fieldName)
             # self.rasPath = os.path.join(r'D:\dumping_codes\APPSherbrooke\raster',self.name + ".tiff")
         else:
             shutil.copyfile(self.path, os.path.join(path,'raster',self.name+ ".tiff"))
