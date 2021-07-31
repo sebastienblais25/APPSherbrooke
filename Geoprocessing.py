@@ -338,7 +338,10 @@ def Reclassify_Raster(input,output, maskin,table):
         else:
             for j in  range(file.RasterXSize):
                 for i in  range(file.RasterYSize):
-                    if listMask[i,j] == 1 or listMask[i,j] < 0:
+                    if listMask[i,j] == 1:
+                            lista[i,j] = 0
+                    if lista[i,j] < 0:
+                            print("nodata = " + str(lista[i,j]))
                             lista[i,j] = 0
     except:
         print('Reclassification échoué')
