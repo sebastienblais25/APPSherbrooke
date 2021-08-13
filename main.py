@@ -13,19 +13,19 @@ start_time = time.time()
 path = pathlib.Path().absolute()
 ###### main ########
 geo.setUpDirectory(path)
-# Set extent and projection
+# Set extent and projection mnt_10m
 proj = geo.getproj(r'D:\dumping_codes\APPSherbrooke\Ref\mnt_10m.tif')
-# print(proj.GetAttrValue('AUTHORITY', 1))
+# print(proj.GetAttrValue('AUTHORITY', 1)) mnt_10m
 extent = geo.getExtent(r'D:\dumping_codes\APPSherbrooke\Ref\mnt_10m.tif')
 # Faire l'analyse mutlicritere
 # parametre : 1-Projection, 
 #             2-Extent,
-#             3-cellsize,
-#             4-Environnement Pondération, 
-#             5-Économique Pondération,
-#             6-Sociaux Pondération, 
-#             7-Physique Pondération, 
+#             3-cellsize,                   Balance   Social     Environn   Économique  
+#             4-Environnement Pondération, APP1==0.33 APP2==0.28 APP3==0.40 APP4==0.20 Amenagement==0.20
+#             5-Économique Pondération,    APP1==0.32 APP2==0.22 APP3==0.21 APP4==0.40 Amenagement==0.40
+#             6-Sociaux Pondération,       APP1==0.20 APP2==0.40 APP3==0.21 APP4==0.20 Amenagement==0.30
+#             7-Physique Pondération,      APP1==0.15 APP2==0.10 APP3==0.18 APP4==0.20 Amenagement==0.15
 #             8-référence pour le crop
-analyse = AnalyseMultiCritere(proj, extent, 10, 0.33, 0.32, 0.20, 0.15, os.path.join(path,'APP_data','municipSherb.shp'))
+analyse = AnalyseMultiCritere(proj, extent, 10, 0.20, 0.50, 0.20, 0.10,'source2.csv','source.csv', os.path.join(path,'Ref','municipSherb.shp'))
 analyse.runAnalysis()
 print("--- %s minutes ---" % ((time.time() - start_time)/60))

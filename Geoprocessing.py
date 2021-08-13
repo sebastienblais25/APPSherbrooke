@@ -308,7 +308,9 @@ def Reclassify_Raster(input,output, maskin,table):
         if reclassif[0] != 'no':
             for j in  range(file.RasterXSize):
                 for i in  range(file.RasterYSize):
-                    if lista[i,j] <= int(reclassif[0].split(':')[0]):
+                    if lista[i,j] < 0:
+                        lista[i,j] = 0
+                    elif lista[i,j] <= int(reclassif[0].split(':')[0]):
                         if listMask[i,j] == 0:
                             lista[i,j] = float(reclassif[0].split(':')[1])
                         else:
@@ -341,7 +343,7 @@ def Reclassify_Raster(input,output, maskin,table):
                     if listMask[i,j] == 1:
                             lista[i,j] = 0
                     if lista[i,j] < 0:
-                            print("nodata = " + str(lista[i,j]))
+                            
                             lista[i,j] = 0
     except:
         print('Reclassification échoué')
@@ -552,7 +554,7 @@ def calculate_slope(DEM):
 # https://gdal.org/python/
 def reprojectRaster(infile, outfile, epsg, cellsize,extent):
     ds = gdal.Warp(outfile, infile, dstSRS=epsg,
-                outputType=gdal.GDT_Float64, xRes=cellsize, yRes=cellsize,ts=extent)
+                outputType=gdal.GDT_Float64, xRes=cellsize, yRes=cellsize)
     ds = None
     return outfile
 

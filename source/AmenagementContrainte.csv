@@ -1,6 +1,9 @@
 Axe,path,weight,name,name_layer,colonne,pretraitement
 Environnement,D:\dumping_codes\Donnee\Milieux_Humide\Milieux_Humide_poly.shp,1,mh,,,
 Environnement,D:\dumping_codes\Donnee\HydroBR\hydroS_BR.shp,1,hydro_s,,,
+Environnement,D:\dumping_codes\Donnee\Milieux_Humide\Zone_inondable.shp,1,inondable,,,
 Environnement,D:\dumping_codes\Donnee\HydroBR\hydroLine_BR.shp,1,Riviere,,,
-Environnement,D:\dumping_codes\Donnee\Route\routeBuffered_clip_fix.shp,1,Route,,,
+Environnement,D:\dumping_codes\Donnee\Route\routeBuffered_clip_fix_20.shp,1,Route,,,
 Social,D:\dumping_codes\Donnee\utilisation_territoire_2018\contraintesMH_AQUA_AGRICOLE_fix.shp,1,no_go,,,
+Social,D:\dumping_codes\Donnee\utilisation_territoire_2018\zone_Agricole_magog.shp,1,parc,,,
+Economique,D:\dumping_codes\Donnee\utilisation_territoire_2018\AP_REG_S_clip.shp,1,agricole,,,

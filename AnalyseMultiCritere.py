@@ -8,7 +8,7 @@ path = pathlib.Path().absolute()
 class AnalyseMultiCritere:
     # Constructeur de l'objet d'analyse multicritere qui requiert seulement 
     # une projection de référence et un extent de référence
-    def __init__(self, ref_proj, ref_extent,cellsize,envPond,socPond,ecoPond,physPond,cropdata=''):
+    def __init__(self, ref_proj, ref_extent,cellsize,envPond,socPond,ecoPond,physPond, filecfactor, filecontrainte, cropdata=''):
         self.cellsize = cellsize
         self.envPond = envPond
         self.socPond = socPond
@@ -23,6 +23,8 @@ class AnalyseMultiCritere:
         self.socialList = []
         self.critereList = []
         self.mask = []
+        self.factor = filecfactor
+        self.contrainte = filecontrainte
     # Remplissage des listes de facteur qui est dans le csv. 
     # Ensuite les couches se font reprojeter pour ensuite se faire rasterizer.
     # Et si nécessaire un proximity sera réaliser
@@ -31,7 +33,7 @@ class AnalyseMultiCritere:
         try:
             test = readCSV(os.path.join(path,'source'),self.cellsize)
             biglist = []
-            biglist = test.read_factor_layer()
+            biglist = test.read_factor_layer(self.factor)
             self.envList = biglist[0]
             self.physList = biglist[1]
             self.socialList = biglist[2]
@@ -47,7 +49,7 @@ class AnalyseMultiCritere:
         print('Peuplement des critères......')
         try:
             test = readCSV(os.path.join(path,'source'),self.cellsize)
-            self.critereList = test.read_criteria_layer()
+            self.critereList = test.read_criteria_layer(self.contrainte)
         except:
             print('Peuplement des critères échoués')
             raise
