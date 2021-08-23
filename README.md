@@ -24,11 +24,8 @@ numpy 1.19.2
 - [x] Réalisation des premier masques de criteres
 - [x] Réalisation des premièere matrice de facteurs
 - [x] Réalisation du core au complet
-- [ ] Gestion des erreurs
-- [ ] Gestion des axes a partir du excel
-- [ ] La phase 2 (site propice)
-- [ ] Création du Docker
-- [ ] Réalisation des prétraitement (dissolve, add filed)
-- [ ] documentation pour environnement
-- [ ] Optimisation
+- [x] Gestion des erreurs
+- [x] Gestion des axes a partir du excel
+- [x] documentation pour environnement
+- [x] Optimisation
 

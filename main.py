@@ -25,7 +25,9 @@ extent = geo.getExtent(r'D:\dumping_codes\APPSherbrooke\Ref\mnt_10m.tif')
 #             5-Économique Pondération,    APP1==0.32 APP2==0.22 APP3==0.21 APP4==0.40 Amenagement==0.40
 #             6-Sociaux Pondération,       APP1==0.20 APP2==0.40 APP3==0.21 APP4==0.20 Amenagement==0.30
 #             7-Physique Pondération,      APP1==0.15 APP2==0.10 APP3==0.18 APP4==0.20 Amenagement==0.15
-#             8-référence pour le crop
-analyse = AnalyseMultiCritere(proj, extent, 10, 0.20, 0.50, 0.20, 0.10,'source2.csv','source.csv', os.path.join(path,'Ref','municipSherb.shp'))
+#             8-Excel des critères
+#             9-Excel des contraintes
+#             10-référence pour le crop
+analyse = AnalyseMultiCritere(proj, extent, 10, 0.33, 0.32, 0.20, 0.15,'source2.csv','source.csv', os.path.join(path,'Ref','municipSherb.shp'))
 analyse.runAnalysis()
 print("--- %s minutes ---" % ((time.time() - start_time)/60))
